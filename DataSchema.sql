@@ -31,33 +31,4 @@ CREATE TABLE Population (
     Total_people INTEGER,
     FOREIGN KEY (SA2_code) REFERENCES Income(SA2_code)
 );
-CREATE TABLE Businesses (
-    SA2_ID VARCHAR(255),
-    IndustryType VARCHAR(255),
-    TurnoverRange VARCHAR(255),
-    NumberOfBusinesses INT,
-    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
-);
-CREATE TABLE PollingPlaces (
-    SA2_ID VARCHAR(255),
-    PollingPlaceID INT PRIMARY KEY,
-    LocationName VARCHAR(255),
-    Address VARCHAR(255),
-    Longitude DECIMAL(9,6),
-    Latitude DECIMAL(9,6),
-    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
-);
-CREATE TABLE PublicTransportStops (
-    Stop_ID VARCHAR(255) PRIMARY KEY,
-    Stop_Name VARCHAR(255),
-    Stop_Lat DECIMAL(9,6),
-    Stop_Lon DECIMAL(9,6),
-    Stop_Code VARCHAR(50),
-    Stop_Desc VARCHAR(255),
-    Zone_ID VARCHAR(50),
-    Stop_URL VARCHAR(255),
-    Location_Type INT,
-    Parent_Station VARCHAR(255),
-    SA2_ID VARCHAR(255),
-    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
-);
+
