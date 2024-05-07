@@ -3,7 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import geopandas as gpd
+from shapely.geometry import Point, Polygon, MultiPolygon
+from geoalchemy2 import Geometry, WKTElement
 
+
+srid = 4326
 
 def readCSV(csv):
     data = pd.read_csv(csv)
@@ -30,16 +34,16 @@ def cleanData(Business, Income, PollingPlace, Population, Stops):
     Stops = Stops.drop_duplicates()
 
     # Checking Outliers
-    sns.pairplot(Business)
-    plt.savefig('Plots/Business.png')
-    sns.pairplot(Income)
-    plt.savefig('Plots/Income.png')
-    sns.pairplot(PollingPlace)
-    plt.savefig('Plots/PollingPlace.png')
-    sns.pairplot(Population)
-    plt.savefig('Plots/Population.png')
-    sns.pairplot(Stops)
-    plt.savefig('Plots/Stops.png')
+    # sns.pairplot(Business)
+    # plt.savefig('Plots/Business.png')
+    # sns.pairplot(Income)
+    # plt.savefig('Plots/Income.png')
+    # sns.pairplot(PollingPlace)
+    # plt.savefig('Plots/PollingPlace.png')
+    # sns.pairplot(Population)
+    # plt.savefig('Plots/Population.png')
+    # sns.pairplot(Stops)
+    # plt.savefig('Plots/Stops.png')
 
     return Business, Income, PollingPlace, Population, Stops
 
@@ -48,14 +52,19 @@ def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture):
     CatchmentPrimary_cleaned = CatchmentPrimary.dropna(subset=['ADD_DATE'])
     CatchmentSecondary_cleaned = CatchmentSecondary.dropna(subset=['ADD_DATE'])
 
-    CatchmentPrimary_cleaned.plot()
-    plt.savefig('Plots/CatchmentPrimary.png')
-    CatchmentSecondary_cleaned.plot()
-    plt.savefig('Plots/CatchmentSecondary.png')
-    CatchmentFuture.plot()
-    plt.savefig('Plots/CatchmentFuture.png')
+    # CatchmentPrimary_cleaned.plot()
+    # plt.savefig('Plots/CatchmentPrimary.png')
+    # CatchmentSecondary_cleaned.plot()
+    # plt.savefig('Plots/CatchmentSecondary.png')
+    # CatchmentFuture.plot()
+    # plt.savefig('Plots/CatchmentFuture.png')
 
     return CatchmentPrimary_cleaned, CatchmentSecondary_cleaned, CatchmentFuture
+
+def create_wkt_element(geom, srid):
+    if geom.geom_type == 'Polygon':
+        geom = MultiPolygon([geom])
+    return WKTElement(geom.wkt, srid)
 
 
 if __name__ == "__main__":
@@ -87,3 +96,24 @@ if __name__ == "__main__":
         BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CatchmentPrimary, CatchmentSecondary, CatchmentFuture = cleanGeospatial(
         CatchmentPrimary, CatchmentSecondary, CatchmentFuture)
+    
+    StopsCSV['geom'] = gpd.points_from_xy(StopsCSV.stop_lon, StopsCSV.stop_lat)  # creating the geometry column
+    StopsCSV = StopsCSV.drop(columns=['stop_lat', 'stop_lon'])  # removing the old latitude/longitude fields
+    
+    StopsCSV['geom'] = StopsCSV['geom'].apply(lambda x: WKTElement(x.wkt, srid=srid))
+    print(StopsCSV.head())
+    
+    CatchmentPrimaryog = CatchmentPrimary.copy()  # creating a copy of the original for later
+    CatchmentPrimary['geom'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
+    CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")  # deleting the old copy
+    print(CatchmentPrimary.head())
+    
+    CatchmentFutureog = CatchmentFuture.copy()  # creating a copy of the original for later
+    CatchmentFuture['geom'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
+    CatchmentFuture = CatchmentFuture.drop(columns="geometry")  # deleting the old copy
+    print(CatchmentFuture.head())
+            
+    CatchmentSecondaryog = CatchmentSecondary.copy()  # creating a copy of the original for later
+    CatchmentSecondary['geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
+    CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")  # deleting the old copy
+    print(CatchmentSecondary.head())

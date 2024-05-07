@@ -29,7 +29,7 @@ CREATE TABLE Population (
     80_84_People INTEGER,
     85_Over INTEGER,
     Total_people INTEGER,
-    FOREIGN KEY (SA2_code) REFERENCES Income(SA2_code)
+    -- FOREIGN KEY (SA2_code) REFERENCES Income(SA2_code)
 );
 CREATE TABLE Businesses (
     Industry_code VARCHAR(255),
@@ -46,7 +46,7 @@ CREATE TABLE Businesses (
     FOREIGN KEY (SA2_code)
 );
 CREATE TABLE PollingPlaces (
-    FID VARCHAR(255),
+    FID VARCHAR(255) PRIMARY KEY,
     State_ VARCHAR(255),
     Division_name VARCHAR(255),
     Division_id INTEGER,
@@ -59,20 +59,79 @@ CREATE TABLE PollingPlaces (
     Premises_suburb VARCHAR(255),
     Premises_state_abbreviation VARCHAR(255),
     Premises_postal_code INTEGER,
-    Latitude INTEGER,
-    Longitude INTEGER,
-    The_geom INTEGER,
-    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
+    Latitude NUMERIC,
+    Longitude NUMERIC,
+    The_geom GEOMETRY(POINT,4326),
+    -- FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
 ),
 
 CREATE TABLE Stops (
-Stop_id INTEGER,
-Stop_code INTEGER,
-Stop_name VARCHAR(255),
-Stop_lat double,
-Stop_lon Doub;e ,
-Location_type VARCHAR(255),
-Parent_station VARCHAR(255),
-Wheelchair_boarding INTEGER,
-Platform_code INTEGER,
+    Stop_id INTEGER,
+    Stop_code INTEGER,
+    Stop_name VARCHAR(255),
+    Location_type VARCHAR(255),
+    Parent_station VARCHAR(255),
+    Wheelchair_boarding INTEGER,
+    Platform_code INTEGER,
+    geom GEOMETRY(POINT,4326)
 ),
+
+CREATE TABLE Primary (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR (255),
+    Use_desc VARCHAR(255),
+    Add_date INTEGER,
+    Kindergarten VARCHAR,
+    Year1 VARCHAR,
+    Year2 VARCHAR,
+    Year3 VARCHAR,
+    Year4 VARCHAR,
+    Year5 VARCHAR,
+    Year6 VARCHAR,
+    Year7 VARCHAR,
+    Year8 VARCHAR,
+    Year9 VARCHAR,
+    Year10 VARCHAR,
+    Year11 VARCHAR,
+    Year12 VARCHAR,
+),
+
+CREATE TABLE Secondary (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR (255),
+    Use_desc VARCHAR(255),
+    Add_date INTEGER,
+    Kindergarten VARCHAR,
+    Year1 VARCHAR,
+    Year2 VARCHAR,
+    Year3 VARCHAR,
+    Year4 VARCHAR,
+    Year5 VARCHAR,
+    Year6 VARCHAR,
+    Year7 VARCHAR,
+    Year8 VARCHAR,
+    Year9 VARCHAR,
+    Year10 VARCHAR,
+    Year11 VARCHAR,
+    Year12 VARCHAR,
+),
+
+CREATE TABLE Future (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR (255),
+    Use_desc VARCHAR(255),
+    Add_date INTEGER,
+    Kindergarten VARCHAR,
+    Year1 INTEGER,
+    Year2 INTEGER,
+    Year3 INTEGER,
+    Year4 INTEGER,
+    Year5 INTEGER,
+    Year6 INTEGER,
+    Year7 INTEGER,
+    Year8 INTEGER,
+    Year9 INTEGER,
+    Year10 INTEGER,
+    Year11 INTEGER,
+    Year12 INTEGER,
+)
