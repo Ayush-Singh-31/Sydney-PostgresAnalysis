@@ -15,9 +15,8 @@ def cleanData(Business, Income, PollingPlace, Population, Stops):
     Income = Income.dropna()
     PollingPlace = PollingPlace.dropna()
     Population = Population.dropna()
-    Stops = Stops.dropna()
     
-    # Cleaning Outliers
+    # Cleaning Duplicates
     Business = Business.drop_duplicates()
     Income = Income.drop_duplicates()
     PollingPlace = PollingPlace.drop_duplicates()
