@@ -31,4 +31,36 @@ CREATE TABLE Population (
     Total_people INTEGER,
     FOREIGN KEY (SA2_code) REFERENCES Income(SA2_code)
 );
-
+CREATE TABLE Businesses (
+    Industry_code VARCHAR(255),
+    Industry_name VARCHAR(255),
+    SA2_code INTEGER PRIMARY KEY,
+    SA2_name VARCHAR(255),
+    0_to_50k_businesses INTEGER,
+    50k_to_200k_businesses INTEGER,
+    200k_to_2m_businesses INTEGER,
+    2m_to_5m_businesses INTEGER,
+    5m_to_10m_businesses INTEGER,
+    10m_or_more_businesses INTEGER,
+    Total_businesses INTEGER,
+    FOREIGN KEY (SA2_code)
+);
+CREATE TABLE PollingPlaces (
+    FID VARCHAR(255),
+    State_ VARCHAR(255),
+    Division_name VARCHAR(255),
+    Division_id INTEGER,
+    Polling_place_type_id INTEGER,
+    Polling_place_name VARCHAR(255),
+    Premises_name VARCHAR(255),
+    Premises_address_1 VARCHAR(255),
+    Premises_address_2 VARCHAR(255),
+    Premises_address_3 VARCHAR(255),
+    Premises_suburb VARCHAR(255),
+    Premises_state_abbreviation VARCHAR(255),
+    Premises_postal_code INTEGER,
+    Latitude INTEGER,
+    Longitude INTEGER,
+    The_geom INTEGER,
+    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
+),
