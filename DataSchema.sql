@@ -64,3 +64,15 @@ CREATE TABLE PollingPlaces (
     The_geom INTEGER,
     FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
 ),
+
+CREATE TABLE Stops (
+Stop_id INTEGER,
+Stop_code INTEGER,
+Stop_name VARCHAR(255),
+Stop_lat double,
+Stop_lon Doub;e ,
+Location_type VARCHAR(255),
+Parent_station VARCHAR(255),
+Wheelchair_boarding INTEGER,
+Platform_code INTEGER,
+),

@@ -9,17 +9,19 @@ def readCSV(csv):
     data = pd.read_csv(csv)
     return data
 
+
 def readGeospatial(path):
     return gpd.read_file(path)
 
+
 def cleanData(Business, Income, PollingPlace, Population, Stops):
-    
+
     # Drop rows with NaN values
     Business = Business.dropna()
     Income = Income.dropna()
     PollingPlace = PollingPlace.dropna()
     Population = Population.dropna()
-    
+
     # Cleaning Duplicates
     Business = Business.drop_duplicates()
     Income = Income.drop_duplicates()
@@ -41,11 +43,10 @@ def cleanData(Business, Income, PollingPlace, Population, Stops):
 
     return Business, Income, PollingPlace, Population, Stops
 
+
 def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture):
-    CatchmentPrimary_cleaned = CatchmentPrimary.dropna(subset=['ADD_DATE']) 
-    CatchmentPrimary_cleaned = CatchmentPrimary_cleaned.drop(columns=['PRIORITY'])  
-    CatchmentSecondary_cleaned = CatchmentSecondary.dropna(subset=['ADD_DATE'])  
-    CatchmentSecondary_cleaned = CatchmentSecondary_cleaned.drop(columns=['PRIORITY']) 
+    CatchmentPrimary_cleaned = CatchmentPrimary.dropna(subset=['ADD_DATE'])
+    CatchmentSecondary_cleaned = CatchmentSecondary.dropna(subset=['ADD_DATE'])
 
     CatchmentPrimary_cleaned.plot()
     plt.savefig('Plots/CatchmentPrimary.png')
@@ -62,12 +63,16 @@ if __name__ == "__main__":
 
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
     IncomePath = os.path.join(currentDir, "Data", "Income.csv")
-    PollingPlacesPath = os.path.join(currentDir, "Data", "PollingPlaces2019.csv")
+    PollingPlacesPath = os.path.join(
+        currentDir, "Data", "PollingPlaces2019.csv")
     PopulationPath = os.path.join(currentDir, "Data", "Population.csv")
     StopsPath = os.path.join(currentDir, "Data", "Stops.txt")
-    CatchmentPrimaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_primary.shp")
-    CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
-    CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
+    CatchmentPrimaryPath = os.path.join(
+        currentDir, "Data", "catchments", "catchments_primary.shp")
+    CatchmentSecondaryPath = os.path.join(
+        currentDir, "Data", "catchments", "catchments_secondary.shp")
+    CatchmentFuturePath = os.path.join(
+        currentDir, "Data", "catchments", "catchments_future.shp")
 
     BusinessCSV = readCSV(BusinessPath)
     IncomeCSV = readCSV(IncomePath)
@@ -78,5 +83,7 @@ if __name__ == "__main__":
     CatchmentSecondary = readGeospatial(CatchmentSecondaryPath)
     CatchmentFuture = readGeospatial(CatchmentFuturePath)
 
-    Business, Income, PollingPlace, Population, Stops = cleanData(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
-    CatchmentPrimary, CatchmentSecondary, CatchmentFuture = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture)
+    Business, Income, PollingPlace, Population, Stops = cleanData(
+        BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
+    CatchmentPrimary, CatchmentSecondary, CatchmentFuture = cleanGeospatial(
+        CatchmentPrimary, CatchmentSecondary, CatchmentFuture)
