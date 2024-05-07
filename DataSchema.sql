@@ -1,17 +1,35 @@
 CREATE TABLE Income (
-    ID INT PRIMARY KEY,
-    SA2_Region_ID INT,
-    Year INT,
-    IncomeGroup VARCHAR(255),
-    AverageIncome DECIMAL(10, 2),
-    FOREIGN KEY (SA2_Region_ID) REFERENCES SA2_Regions(ID),
-    CONSTRAINT CHK_Year CHECK (Year > 1900 AND Year <= EXTRACT(YEAR FROM CURRENT_DATE))
+    
+    SA2_code INTEGER PRIMARY KEY,
+    SA2_Name VARCHAR(255),
+    Earners INTEGER,
+    Median_age INTEGER,
+    Median_income INTEGER,
+    Mean_income INTEGER,
 );
 CREATE TABLE Population (
-    SA2_ID VARCHAR(255),
-    AgeRange VARCHAR(50),
-    PopulationCount INT,
-    FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
+    SA2_code INTEGER PRIMARY KEY,
+    SA2_Name VARCHAR(255),
+    0_4_People INTEGER,
+    5_9_People INTEGER,
+    10_14_People INTEGER,
+    15_19_People INTEGER,
+    20_24_People INTEGER,
+    25_29_People INTEGER,
+    30_34_People INTEGER,
+    35_39_People INTEGER,
+    40_44_People INTEGER,
+    45_49_People INTEGER,
+    50_54_People INTEGER,
+    55_59_People INTEGER,
+    60_64_People INTEGER,
+    65_69_People INTEGER,
+    70_74_People INTEGER,
+    75_79_People INTEGER,
+    80_84_People INTEGER,
+    85_Over INTEGER,
+    Total_people INTEGER,
+    FOREIGN KEY (SA2_code) REFERENCES Income(SA2_code)
 );
 CREATE TABLE Businesses (
     SA2_ID VARCHAR(255),
