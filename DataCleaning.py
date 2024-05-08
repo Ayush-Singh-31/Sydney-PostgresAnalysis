@@ -3,13 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import geopandas as gpd
-
 from shapely.geometry import MultiPolygon
 from geoalchemy2 import WKTElement
 
 def readCSV(csv):
-    data = pd.read_csv(csv)
-    return data
+    return pd.read_csv(csv)
 
 def readGeospatial(path):
     return gpd.read_file(path)
