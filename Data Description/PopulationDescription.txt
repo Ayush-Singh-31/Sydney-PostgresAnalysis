@@ -1,0 +1,104 @@
+Head:
+    sa2_code                     sa2_name  0-4_people  5-9_people  10-14_people  15-19_people  20-24_people  25-29_people  30-34_people  35-39_people  40-44_people  45-49_people  50-54_people  55-59_people  60-64_people  65-69_people  70-74_people  75-79_people  80-84_people  85-and-over_people  total_people
+0  102011028     Avoca Beach - Copacabana         424         522           623           552           386           222           306           416           544           572           602           570           520           464           369           226           142                  70          7530
+1  102011029  Box Head - MacMasters Beach         511         666           702           592           461           347           420           535           645           749           749           794           895           863           925           603           331                 264         11052
+2  102011030              Calga - Kulnura         200         225           258           278           274           227           214           286           250           325           436           422           397           327           264           190           100                  75          4748
+3  102011031          Erina - Green Point         683         804           880           838           661           502           587           757           760           859           882           901           930           917          1065           976           773                1028         14803
+4  102011032        Gosford - Springfield        1164        1044          1084          1072          1499          1864          1750          1520          1324          1330          1241          1377          1285          1166           949           664           476                 537         21346
+
+Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 373 entries, 0 to 372
+Data columns (total 21 columns):
+ #   Column              Non-Null Count  Dtype 
+---  ------              --------------  ----- 
+ 0   sa2_code            373 non-null    int64 
+ 1   sa2_name            373 non-null    object
+ 2   0-4_people          373 non-null    int64 
+ 3   5-9_people          373 non-null    int64 
+ 4   10-14_people        373 non-null    int64 
+ 5   15-19_people        373 non-null    int64 
+ 6   20-24_people        373 non-null    int64 
+ 7   25-29_people        373 non-null    int64 
+ 8   30-34_people        373 non-null    int64 
+ 9   35-39_people        373 non-null    int64 
+ 10  40-44_people        373 non-null    int64 
+ 11  45-49_people        373 non-null    int64 
+ 12  50-54_people        373 non-null    int64 
+ 13  55-59_people        373 non-null    int64 
+ 14  60-64_people        373 non-null    int64 
+ 15  65-69_people        373 non-null    int64 
+ 16  70-74_people        373 non-null    int64 
+ 17  75-79_people        373 non-null    int64 
+ 18  80-84_people        373 non-null    int64 
+ 19  85-and-over_people  373 non-null    int64 
+ 20  total_people        373 non-null    int64 
+dtypes: int64(20), object(1)
+memory usage: 61.3+ KB
+
+
+Description:
+           sa2_code   0-4_people   5-9_people  10-14_people  15-19_people  20-24_people  25-29_people  30-34_people  35-39_people  40-44_people  45-49_people  50-54_people  55-59_people  60-64_people  65-69_people  70-74_people  75-79_people  80-84_people  85-and-over_people  total_people
+count  3.730000e+02   373.000000   373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000    373.000000          373.000000    373.000000
+mean   1.198861e+08   854.737265   890.718499    873.538874    797.010724    941.506702   1079.378016   1141.667560   1119.305630    974.163539    926.337802    860.184987    814.281501    734.670241    618.152815    541.369973    386.790885    268.656836          278.772118  14101.243968
+std    6.504069e+06   457.650405   472.605070    465.615660    413.433206    513.399976    711.167860    719.999852    589.994822    453.460847    421.014390    395.336077    376.967453    352.993590    304.425028    281.331172    217.164521    159.342399          204.291009   6039.862248
+min    1.020110e+08     0.000000     0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000      0.000000            0.000000      0.000000
+25%    1.170316e+08   524.000000   544.000000    517.000000    485.000000    595.000000    578.000000    636.000000    719.000000    679.000000    645.000000    587.000000    559.000000    492.000000    410.000000    355.000000    237.000000    158.000000          122.000000  10291.000000
+50%    1.210117e+08   819.000000   854.000000    861.000000    763.000000    891.000000    984.000000   1047.000000   1101.000000    960.000000    931.000000    845.000000    809.000000    703.000000    589.000000    517.000000    366.000000    260.000000          249.000000  13881.000000
+75%    1.250116e+08  1157.000000  1207.000000   1182.000000   1065.000000   1219.000000   1462.000000   1506.000000   1496.000000   1314.000000   1227.000000   1138.000000   1072.000000    988.000000    837.000000    734.000000    524.000000    359.000000          403.000000  18757.000000
+max    1.280216e+08  2576.000000  2576.000000   2066.000000   1771.000000   3279.000000   4586.000000   4507.000000   3664.000000   2549.000000   1924.000000   1840.000000   1737.000000   1829.000000   1675.000000   1786.000000   1362.000000    891.000000         1110.000000  25565.000000
+
+Columns:
+['sa2_code', 'sa2_name', '0-4_people', '5-9_people', '10-14_people', '15-19_people', '20-24_people', '25-29_people', '30-34_people', '35-39_people', '40-44_people', '45-49_people', '50-54_people', '55-59_people', '60-64_people', '65-69_people', '70-74_people', '75-79_people', '80-84_people', '85-and-over_people', 'total_people']
+
+Shape:
+(373, 21)
+
+Data Types:
+sa2_code               int64
+sa2_name              object
+0-4_people             int64
+5-9_people             int64
+10-14_people           int64
+15-19_people           int64
+20-24_people           int64
+25-29_people           int64
+30-34_people           int64
+35-39_people           int64
+40-44_people           int64
+45-49_people           int64
+50-54_people           int64
+55-59_people           int64
+60-64_people           int64
+65-69_people           int64
+70-74_people           int64
+75-79_people           int64
+80-84_people           int64
+85-and-over_people     int64
+total_people           int64
+dtype: object
+
+Missing Values:
+sa2_code              0
+sa2_name              0
+0-4_people            0
+5-9_people            0
+10-14_people          0
+15-19_people          0
+20-24_people          0
+25-29_people          0
+30-34_people          0
+35-39_people          0
+40-44_people          0
+45-49_people          0
+50-54_people          0
+55-59_people          0
+60-64_people          0
+65-69_people          0
+70-74_people          0
+75-79_people          0
+80-84_people          0
+85-and-over_people    0
+total_people          0
+dtype: int64
+

@@ -6,11 +6,37 @@ import geopandas as gpd
 from shapely.geometry import MultiPolygon
 from geoalchemy2 import WKTElement
 
-def readCSV(csv):
+def readCSV(csv) -> pd.DataFrame:
     return pd.read_csv(csv)
 
-def readGeospatial(path):
+def readGeospatial(path) -> gpd.GeoDataFrame:
     return gpd.read_file(path)
+
+def describeData(df, output_file) -> None:
+    with open(output_file, 'w') as f:
+        f.write("Head:\n")
+        f.write(df.head().to_string() + '\n\n')
+        
+        f.write("Info:\n")
+        df.info(buf=f)
+        f.write('\n\n')
+        
+        f.write("Description:\n")
+        f.write(df.describe().to_string() + '\n\n')
+        
+        f.write("Columns:\n")
+        f.write(str(df.columns.tolist()) + '\n\n')
+        
+        f.write("Shape:\n")
+        f.write(str(df.shape) + '\n\n')
+        
+        f.write("Data Types:\n")
+        f.write(str(df.dtypes) + '\n\n')
+        
+        f.write("Missing Values:\n")
+        f.write(str(df.isnull().sum()) + '\n\n')
+    return None
+
 
 def cleanData(Business, Income, PollingPlace, Population, Stops):
 
@@ -64,9 +90,12 @@ def create_wkt_element(geom, srid):
 
 
 if __name__ == "__main__":
-    srid = 4326
-    currentDir = os.path.dirname(os.path.abspath(__file__))
 
+    # Declareing Global Variables
+    srid = 4326
+
+    # Setting the path for the data files
+    currentDir = os.path.dirname(os.path.abspath(__file__))
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
     IncomePath = os.path.join(currentDir, "Data", "Income.csv")
     PollingPlacesPath = os.path.join(currentDir, "Data", "PollingPlaces2019.csv")
@@ -77,6 +106,7 @@ if __name__ == "__main__":
     CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
     SA2DigitalBoundariesPath = os.path.join(currentDir, "Data", "SA2 Digital Boundaries","SA2_2021_AUST_GDA2020.shp")
 
+    # Reading the data files
     BusinessCSV = readCSV(BusinessPath)
     IncomeCSV = readCSV(IncomePath)
     PollingPlacesCSV = readCSV(PollingPlacesPath)
@@ -87,6 +117,19 @@ if __name__ == "__main__":
     CatchmentFuture = readGeospatial(CatchmentFuturePath)
     SA2DigitalBoundaries = readGeospatial(SA2DigitalBoundariesPath)
 
+    # Describing the dataframes
+    describeData(BusinessCSV, 'Data Description/BusinessDescription.txt')
+    describeData(IncomeCSV, 'Data Description/IncomeDescription.txt')
+    describeData(PollingPlacesCSV, 'Data Description/PollingPlacesDescription.txt')
+    describeData(PopulationCSV, 'Data Description/PopulationDescription.txt')
+    describeData(StopsCSV, 'Data Description/StopsDescription.txt')
+    describeData(CatchmentPrimary, 'Data Description/CatchmentPrimaryDescription.txt')
+    describeData(CatchmentSecondary, 'Data Description/CatchmentSecondaryDescription.txt')
+    describeData(CatchmentFuture, 'Data Description/CatchmentFutureDescription.txt')
+    describeData(SA2DigitalBoundaries, 'Data Description/SA2DigitalBoundariesDescription.txt')
+    quit(0)
+
+    # Cleaning the data
     Business, Income, PollingPlace, Population, Stops = cleanData(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries)
     

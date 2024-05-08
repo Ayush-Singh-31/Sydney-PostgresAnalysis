@@ -1,0 +1,59 @@
+Head:
+   sa2_code21                         sa2_name earners median_age median_income mean_income
+0   101021007                        Braidwood    2467         51         46640       68904
+1   101021008                          Karabar    5103         42         65564       69672
+2   101021009                       Queanbeyan    7028         39         63528       69174
+3   101021010                Queanbeyan - East    3398         39         66148       74162
+4   101021012  Queanbeyan West - Jerrabomberra    8422         44         78630       91981
+
+Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 642 entries, 0 to 641
+Data columns (total 6 columns):
+ #   Column         Non-Null Count  Dtype 
+---  ------         --------------  ----- 
+ 0   sa2_code21     642 non-null    int64 
+ 1   sa2_name       642 non-null    object
+ 2   earners        642 non-null    object
+ 3   median_age     642 non-null    object
+ 4   median_income  642 non-null    object
+ 5   mean_income    642 non-null    object
+dtypes: int64(1), object(5)
+memory usage: 30.2+ KB
+
+
+Description:
+         sa2_code21
+count  6.420000e+02
+mean   1.148262e+08
+std    8.158956e+06
+min    1.010210e+08
+25%    1.080137e+08
+50%    1.160113e+08
+75%    1.220189e+08
+max    1.280216e+08
+
+Columns:
+['sa2_code21', 'sa2_name', 'earners', 'median_age', 'median_income', 'mean_income']
+
+Shape:
+(642, 6)
+
+Data Types:
+sa2_code21        int64
+sa2_name         object
+earners          object
+median_age       object
+median_income    object
+mean_income      object
+dtype: object
+
+Missing Values:
+sa2_code21       0
+sa2_name         0
+earners          0
+median_age       0
+median_income    0
+mean_income      0
+dtype: int64
+
