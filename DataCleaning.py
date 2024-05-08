@@ -11,10 +11,8 @@ def readCSV(csv):
     data = pd.read_csv(csv)
     return data
 
-
 def readGeospatial(path):
     return gpd.read_file(path)
-
 
 def cleanData(Business, Income, PollingPlace, Population, Stops):
 
