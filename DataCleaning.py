@@ -44,7 +44,7 @@ def cleanData(Business, Income, PollingPlace, Population, Stops):
     return Business, Income, PollingPlace, Population, Stops
 
 
-def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture):
+def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries):
     CatchmentPrimary_cleaned = CatchmentPrimary.dropna(subset=['ADD_DATE'])
     CatchmentSecondary_cleaned = CatchmentSecondary.dropna(subset=['ADD_DATE'])
 
@@ -54,8 +54,10 @@ def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture):
     plt.savefig('Plots/CatchmentSecondary.png')
     CatchmentFuture.plot()
     plt.savefig('Plots/CatchmentFuture.png')
+    SA2DigitalBoundaries.plot()
+    plt.savefig('Plots/SA2DigitalBoundaries.png')
 
-    return CatchmentPrimary_cleaned, CatchmentSecondary_cleaned, CatchmentFuture
+    return CatchmentPrimary_cleaned, CatchmentSecondary_cleaned, CatchmentFuture, SA2DigitalBoundaries
 
 def create_wkt_element(geom, srid):
     if geom.geom_type == 'Polygon':
@@ -75,6 +77,7 @@ if __name__ == "__main__":
     CatchmentPrimaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_primary.shp")
     CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
     CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
+    SA2DigitalBoundariesPath = os.path.join(currentDir, "Data", "SA2 Digital Boundaries","SA2_2021_AUST_GDA2020.shp")
 
     BusinessCSV = readCSV(BusinessPath)
     IncomeCSV = readCSV(IncomePath)
@@ -84,9 +87,10 @@ if __name__ == "__main__":
     CatchmentPrimary = readGeospatial(CatchmentPrimaryPath)
     CatchmentSecondary = readGeospatial(CatchmentSecondaryPath)
     CatchmentFuture = readGeospatial(CatchmentFuturePath)
+    SA2DigitalBoundaries = readGeospatial(SA2DigitalBoundariesPath)
 
     Business, Income, PollingPlace, Population, Stops = cleanData(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
-    CatchmentPrimary, CatchmentSecondary, CatchmentFuture = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture)
+    CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries)
     
     StopsCSV['geom'] = gpd.points_from_xy(StopsCSV.stop_lon, StopsCSV.stop_lat)  # creating the geometry column
     StopsCSV = StopsCSV.drop(columns=['stop_lat', 'stop_lon'])  # removing the old latitude/longitude fields
