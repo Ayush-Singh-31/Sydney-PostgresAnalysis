@@ -37,22 +37,7 @@ def describeData(df, output_file) -> None:
         f.write(str(df.isnull().sum()) + '\n\n')
     return None
 
-
-def cleanData(Business, Income, PollingPlace, Population, Stops):
-
-    # Drop rows with NaN values
-    Business = Business.dropna()
-    Income = Income.dropna()
-    PollingPlace = PollingPlace.dropna()
-    Population = Population.dropna()
-
-    # Cleaning Duplicates
-    Business = Business.drop_duplicates()
-    Income = Income.drop_duplicates()
-    PollingPlace = PollingPlace.drop_duplicates()
-    Population = Population.drop_duplicates()
-    Stops = Stops.drop_duplicates()
-
+def pairPlots(Business, Income, PollingPlace, Population, Stops):
     # Checking Outliers
     sns.pairplot(Business)
     plt.savefig('Plots/Business.png')
@@ -64,6 +49,20 @@ def cleanData(Business, Income, PollingPlace, Population, Stops):
     plt.savefig('Plots/Population.png')
     sns.pairplot(Stops)
     plt.savefig('Plots/Stops.png')
+
+def cleanData(Business, Income, PollingPlace, Population, Stops):
+
+    # Buiness
+    # First we drop any duplicate files.
+    Business = Business.drop_duplicates() 
+    # From the data infromation we know that there are no missing values in the DataFrame, which is good.
+
+    # Income
+    # Changing data-fromants to appropriate datatypes
+    Income['earners'] = pd.to_numeric(Income['earners'], errors='coerce')
+    Income['median_age'] = pd.to_numeric(Income['median_age'], errors='coerce')
+    Income['median_income'] = pd.to_numeric(Income['median_income'], errors='coerce')
+    Income['mean_income'] = pd.to_numeric(Income['mean_income'], errors='coerce')
 
     return Business, Income, PollingPlace, Population, Stops
 
@@ -106,7 +105,7 @@ if __name__ == "__main__":
     CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
     SA2DigitalBoundariesPath = os.path.join(currentDir, "Data", "SA2 Digital Boundaries","SA2_2021_AUST_GDA2020.shp")
 
-    # Reading the data files
+    # Reading the data files 
     BusinessCSV = readCSV(BusinessPath)
     IncomeCSV = readCSV(IncomePath)
     PollingPlacesCSV = readCSV(PollingPlacesPath)
@@ -127,9 +126,8 @@ if __name__ == "__main__":
     describeData(CatchmentSecondary, 'Data Description/CatchmentSecondaryDescription.txt')
     describeData(CatchmentFuture, 'Data Description/CatchmentFutureDescription.txt')
     describeData(SA2DigitalBoundaries, 'Data Description/SA2DigitalBoundariesDescription.txt')
-    quit(0)
 
-    # Cleaning the data
+    # Cleaning the data while keeping the original data-files
     Business, Income, PollingPlace, Population, Stops = cleanData(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries)
     
