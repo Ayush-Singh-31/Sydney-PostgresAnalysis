@@ -16,23 +16,17 @@ def describeData(df, output_file) -> None:
     with open(output_file, 'w') as f:
         f.write("Head:\n")
         f.write(df.head().to_string() + '\n\n')
-        
         f.write("Info:\n")
         df.info(buf=f)
         f.write('\n\n')
-        
         f.write("Description:\n")
         f.write(df.describe().to_string() + '\n\n')
-        
         f.write("Columns:\n")
         f.write(str(df.columns.tolist()) + '\n\n')
-        
         f.write("Shape:\n")
         f.write(str(df.shape) + '\n\n')
-        
         f.write("Data Types:\n")
         f.write(str(df.dtypes) + '\n\n')
-        
         f.write("Missing Values:\n")
         f.write(str(df.isnull().sum()) + '\n\n')
     return None
