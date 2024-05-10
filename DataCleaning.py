@@ -134,7 +134,7 @@ def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2Di
     CatchmentSecondary['Geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
     StopsCSV['Geometry'] = gpd.points_from_xy(StopsCSV.Latitude, StopsCSV.Longitude)  
     StopsCSV['Geom'] = StopsCSV['Geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
-    SA2DigitalBoundaries = SA2DigitalBoundaries[SA2DigitalBoundaries['GCC_NAME21'] == 'Greater Sydney']
+    SA2DigitalBoundaries = SA2DigitalBoundaries[SA2DigitalBoundaries['GCC_NAME21'] == 'Greater Sydney'].copy()
     SA2DigitalBoundaries['Geom'] = SA2DigitalBoundaries['geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
 
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry") 
