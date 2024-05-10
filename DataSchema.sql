@@ -64,21 +64,18 @@ CREATE TABLE PollingPlaces (
     Longitude NUMERIC,
     Geom GEOMETRY(POINT,4326),
     -- FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
-),
+);
 
 CREATE TABLE Stops (
     StopID INTEGER,
     StopCode INTEGER,
     StopName VARCHAR(255),
-    -- Latitude and Longitude were not addeded
-    Latitude Geometry,
-    Longitude Geometry,
     LocationType VARCHAR(255),
     ParentStation VARCHAR(255),
     WheelchairBoarding INTEGER,
     PlatformCode INTEGER
-    -- geom GEOMETRY(POINT,4326) This column is not in the data
-),
+    geom GEOMETRY(POINT,4326)
+);
 
 CREATE TABLE Primary (
     USE_ID INTEGER PRIMARY KEY,
@@ -98,7 +95,7 @@ CREATE TABLE Primary (
     Year10 VARCHAR,
     Year11 VARCHAR,
     Year12 VARCHAR,
-),
+);
 
 CREATE TABLE Secondary (
     USE_ID INTEGER PRIMARY KEY,
@@ -118,7 +115,7 @@ CREATE TABLE Secondary (
     Year10 VARCHAR,
     Year11 VARCHAR,
     Year12 VARCHAR,
-),
+);
 
 CREATE TABLE Future (
     USE_ID INTEGER PRIMARY KEY,
@@ -138,4 +135,22 @@ CREATE TABLE Future (
     Year10 INTEGER,
     Year11 INTEGER,
     Year12 INTEGER,
-)
+);
+CREATE TABLE SA2 (
+    SA2_CODE INTEGER,
+    SA2_NAME21 VARCHAR,
+    CHG_FLAG21 INTEGER,
+    CHG_LBL21 VARCHAR,
+    SA3_CODE21 INTEGER,
+    SA3_NAME21 VARCHAR,
+    SA4_CODE21 INTEGER,
+    SA4_NAME21 VARCHAR,
+    GCC_CODE21 VARCHAR,
+    GCC_NAME21 VARCHAR,
+    STE_CODE21 INTEGER,
+    STE_NAME21 VARCHAR,
+    AUS_CODE21 VARCHAR,
+    AUS_NAME21 VARCHAR,
+    AREASQKM21 FLOAT,
+    LOCI_URI21 ,
+);
