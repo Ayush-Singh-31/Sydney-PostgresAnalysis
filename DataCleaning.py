@@ -47,30 +47,82 @@ def pairPlots(Business, Income, PollingPlace, Population, Stops):
 def cleanCSV(Business, Income, PollingPlace, Population, Stops):
 
     # Buiness
-    # First we drop any duplicate files.
     Business = Business.drop_duplicates() 
-    # From the data infromation we know that there are no missing values in the DataFrame, which is good.
+    Business.rename(columns = {'industry_code':'IndustryCode'}, inplace = True)
+    Business.rename(columns = {'industry_name':'IndustryName'}, inplace = True)
+    Business.rename(columns = {'sa2_code':'SA2code'}, inplace = True)
+    Business.rename(columns = {'sa2_name':'SA2name'}, inplace = True)
+    Business.rename(columns = {'0_to_50k_businesses':'0k-50k'}, inplace = True)
+    Business.rename(columns = {'50k_to_200k_businesses':'50k-200k'}, inplace = True)
+    Business.rename(columns = {'200k_to_2m_businesses':'200k-2M'}, inplace = True)
+    Business.rename(columns = {'2m_to_5m_businesses':'2M-5M'}, inplace = True)
+    Business.rename(columns = {'5m_to_10m_businesses':'5M-10M'}, inplace = True)
+    Business.rename(columns = {'10m_or_more_businesses':'10M+'}, inplace = True)
+    Business.rename(columns = {'total_businesses':'TotalBusinesses'}, inplace = True)
 
     # Income
-    # Dropping any duplicates
     Income = Income.drop_duplicates()
-    # Changing data-fromants to appropriate datatypes
     Income['earners'] = pd.to_numeric(Income['earners'], errors='coerce')
     Income['median_age'] = pd.to_numeric(Income['median_age'], errors='coerce')
     Income['median_income'] = pd.to_numeric(Income['median_income'], errors='coerce')
     Income['mean_income'] = pd.to_numeric(Income['mean_income'], errors='coerce')
+    Income.rename(columns = {'sa2_code21':'SA2code'}, inplace = True)
+    Income.rename(columns = {'sa2_name':'SA2name'}, inplace = True)
+    Income.rename(columns = {'median_age':'MedianAge'}, inplace = True)
+    Income.rename(columns = {'median_income':'MedianIncome'}, inplace = True)
+    Income.rename(columns = {'mean_income':'MeanIncome'}, inplace = True)
 
     # PollingPlace
-    # Dropping any duplicates
     PollingPlace = PollingPlace.drop_duplicates()
+    PollingPlace.rename(columns = {'division_id':'DivisionID'}, inplace = True)
+    PollingPlace.rename(columns = {'division_name':'DivisionName'}, inplace = True)
+    PollingPlace.rename(columns = {'polling_place_id':'PlaceID'}, inplace = True)
+    PollingPlace.rename(columns = {'polling_place_type_id':'TypeID'}, inplace = True)
+    PollingPlace.rename(columns = {'polling_place_name':'PlaceName'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_name':'PremisesName'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_address_1':'Address1'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_address_2':'Address2'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_address_3':'Address3'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_suburb':'Suburb'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_state_abbreviation':'State'}, inplace = True)
+    PollingPlace.rename(columns = {'premises_post_code':'Postcode'}, inplace = True)
+    PollingPlace.rename(columns = {'the_geom':'Geom'}, inplace = True)
 
     # Population
-    # Dropping any duplicates
     Population = Population.drop_duplicates()
+    Population.rename(columns = {'sa2_code':'SA2code'}, inplace = True)
+    Population.rename(columns = {'sa2_name':'SA2name'}, inplace = True)
+    Population.rename(columns = {'0-4_people':'0-4'}, inplace = True)
+    Population.rename(columns = {'5-9_people':'5-9'}, inplace = True)
+    Population.rename(columns = {'10-14_people':'10-14'}, inplace = True)
+    Population.rename(columns = {'15-19_people':'15-19'}, inplace = True)
+    Population.rename(columns = {'20-24_people':'20-24'}, inplace = True)
+    Population.rename(columns = {'25-29_people':'25-29'}, inplace = True)
+    Population.rename(columns = {'30-34_people':'30-34'}, inplace = True)
+    Population.rename(columns = {'35-39_people':'35-39'}, inplace = True)
+    Population.rename(columns = {'40-44_people':'40-44'}, inplace = True)
+    Population.rename(columns = {'45-49_people':'45-49'}, inplace = True)
+    Population.rename(columns = {'50-54_people':'50-54'}, inplace = True)
+    Population.rename(columns = {'55-59_people':'55-59'}, inplace = True)
+    Population.rename(columns = {'60-64_people':'60-64'}, inplace = True)
+    Population.rename(columns = {'65-69_people':'65-69'}, inplace = True)
+    Population.rename(columns = {'70-74_people':'70-74'}, inplace = True)
+    Population.rename(columns = {'75-79_people':'75-79'}, inplace = True)
+    Population.rename(columns = {'80-84_people':'80-84'}, inplace = True)
+    Population.rename(columns = {'85-and-over_people':'85+'}, inplace = True)
+    Population.rename(columns = {'total_people':'TotalPeople'}, inplace = True)
 
     # Stops
-    # Dropping any duplicates
     Stops = Stops.drop_duplicates()
+    Stops.rename(columns = {'stop_id':'StopID'}, inplace = True)
+    Stops.rename(columns = {'stop_code':'StopCode'}, inplace = True)
+    Stops.rename(columns = {'stop_name':'StopName'}, inplace = True)
+    Stops.rename(columns = {'stop_lat':'Latitude'}, inplace = True)
+    Stops.rename(columns = {'stop_lon':'Longitude'}, inplace = True)
+    Stops.rename(columns = {'location_type':'LocationType'}, inplace = True)
+    Stops.rename(columns = {'parent_station':'ParentStation'}, inplace = True)
+    Stops.rename(columns = {'wheelchair_boarding':'WheelchairBoarding'}, inplace = True)
+    Stops.rename(columns = {'platform_code':'PlatformCode'}, inplace = True)
 
     return Business, Income, PollingPlace, Population, Stops
 
@@ -85,8 +137,8 @@ def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2Di
     CatchmentSecondary['geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")  # deleting the old copy
 
-    StopsCSV['geom'] = gpd.points_from_xy(StopsCSV.stop_lon, StopsCSV.stop_lat)  # creating the geometry column
-    StopsCSV = StopsCSV.drop(columns=['stop_lat', 'stop_lon'])  # removing the old latitude/longitude fields
+    StopsCSV['geom'] = gpd.points_from_xy(StopsCSV.Latitude, StopsCSV.Longitude)  # creating the geometry column
+    StopsCSV = StopsCSV.drop(columns=['Latitude', 'Longitude'])  # removing the old latitude/longitude fields
     StopsCSV['geom'] = StopsCSV['geom'].apply(lambda x: WKTElement(x.wkt, srid=srid))
 
     return CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, StopsCSV
