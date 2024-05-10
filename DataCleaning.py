@@ -1,12 +1,12 @@
 import os
+import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 import geopandas as gpd
-from shapely.geometry import MultiPolygon
-from geoalchemy2 import WKTElement
+import matplotlib.pyplot as plt
 from scipy.stats import zscore
-import numpy as np
+from geoalchemy2 import Geometry, WKTElement
+from shapely.geometry import Point, Polygon, MultiPolygon
 
 def readCSV(csv) -> pd.DataFrame:
     return pd.read_csv(csv)
