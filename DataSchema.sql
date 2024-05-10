@@ -46,10 +46,11 @@ CREATE TABLE Businesses (
     FOREIGN KEY (SA2code)
 );
 CREATE TABLE PollingPlaces (
+    -- Check the column names with CSV
     FID VARCHAR(255) PRIMARY KEY,
-    StateABV VARCHAR(255),
     DivisionName VARCHAR(255),
     DivisionID INTEGER,
+    PlaceID INTEGER,
     TypeID INTEGER,
     PlaceName VARCHAR(255),
     PremisesName VARCHAR(255),
@@ -66,14 +67,17 @@ CREATE TABLE PollingPlaces (
 ),
 
 CREATE TABLE Stops (
-    Stop_id INTEGER,
-    Stop_code INTEGER,
-    Stop_name VARCHAR(255),
-    Location_type VARCHAR(255),
-    Parent_station VARCHAR(255),
-    Wheelchair_boarding INTEGER,
-    Platform_code INTEGER,
-    geom GEOMETRY(POINT,4326)
+    StopID INTEGER,
+    StopCode INTEGER,
+    StopName VARCHAR(255),
+    -- Latitude and Longitude were not addeded
+    Latitude Geometry,
+    Longitude Geometry,
+    LocationType VARCHAR(255),
+    ParentStation VARCHAR(255),
+    WheelchairBoarding INTEGER,
+    PlatformCode INTEGER
+    -- geom GEOMETRY(POINT,4326) This column is not in the data
 ),
 
 CREATE TABLE Primary (
