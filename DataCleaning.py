@@ -191,4 +191,4 @@ if __name__ == "__main__":
 
     # Cleaning the data while keeping the original data-files
     Business, Income, PollingPlace, Population, Stops = cleanCSV(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
-    CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, stops = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, Stops, srid)
+    CPrimary, CSecondary, CFuture, SA2, Stops = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, Stops, srid)
