@@ -5,6 +5,8 @@ import seaborn as sns
 import geopandas as gpd
 from shapely.geometry import MultiPolygon
 from geoalchemy2 import WKTElement
+from scipy.stats import zscore
+import numpy as np
 
 def readCSV(csv) -> pd.DataFrame:
     return pd.read_csv(csv)
@@ -148,6 +150,10 @@ def create_wkt_element(geom, srid):
         geom = MultiPolygon([geom])
     return WKTElement(geom.wkt, srid)
 
+def zScore(df, numericColumns):
+    df[numericColumns] = df[numericColumns].apply(zscore)
+    print(df.head())
+
 if __name__ == "__main__":
 
     # Declareing Global Variables
@@ -190,3 +196,11 @@ if __name__ == "__main__":
     # Cleaning the data while keeping the original data-files
     Business, Income, PollingPlace, Population, Stops = cleanCSV(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, stops = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, Stops, srid)
+
+    # Finding the z-scores
+    BusinessNumCols = ['0kto50k', '50kto200k', '200kto2M', '2Mto5M', '5Mto10M', '10MOver', 'TotalBusinesses']
+    zScore(Business, BusinessNumCols)
+    IncomeNumCols = ['MedianAge', 'MedianIncome', 'MeanIncome']
+    zScore(Income, IncomeNumCols)
+    PopulationNumCols = ['0to4', '5to9', '10to14', '15to19', '20to24', '25to29', '30to34', '35to39', '40to44', '45to49', '50to54', '55to59', '60to64', '65to69', '70to74', '75to79', '80to84', '85Over', 'TotalPeople']
+    zScore(Population, PopulationNumCols)
