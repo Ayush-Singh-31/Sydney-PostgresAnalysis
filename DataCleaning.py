@@ -4,9 +4,8 @@ import pandas as pd
 import seaborn as sns
 import geopandas as gpd
 import matplotlib.pyplot as plt
-from scipy.stats import zscore
-from geoalchemy2 import Geometry, WKTElement
-from shapely.geometry import Point, Polygon, MultiPolygon
+from geoalchemy2 import WKTElement
+from shapely.geometry import MultiPolygon
 
 def readCSV(csv) -> pd.DataFrame:
     return pd.read_csv(csv)
@@ -130,18 +129,16 @@ def cleanCSV(Business, Income, PollingPlace, Population, Stops):
 
 def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, StopsCSV, srid):
     
-    CatchmentPrimary['geom'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
-    CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")  # deleting the old copy
+    CatchmentPrimary['Geom'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
+    CatchmentFuture['Geom'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
+    CatchmentSecondary['Geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
+    StopsCSV['Geometry'] = gpd.points_from_xy(StopsCSV.Latitude, StopsCSV.Longitude)  
+    StopsCSV['Geom'] = StopsCSV['Geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
 
-    CatchmentFuture['geom'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
-    CatchmentFuture = CatchmentFuture.drop(columns="geometry")  # deleting the old copy
-    
-    CatchmentSecondary['geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  # applying the function
-    CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")  # deleting the old copy
-
-    StopsCSV['geom'] = gpd.points_from_xy(StopsCSV.Latitude, StopsCSV.Longitude)  # creating the geometry column
-    StopsCSV = StopsCSV.drop(columns=['Latitude', 'Longitude'])  # removing the old latitude/longitude fields
-    StopsCSV['geom'] = StopsCSV['geom'].apply(lambda x: WKTElement(x.wkt, srid=srid))
+    CatchmentSecondary = CatchmentSecondary.drop(columns="geometry") 
+    CatchmentFuture = CatchmentFuture.drop(columns="geometry") 
+    CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")  
+    StopsCSV = StopsCSV.drop(columns=['Latitude', 'Longitude'])
 
     return CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, StopsCSV
 
@@ -149,10 +146,6 @@ def create_wkt_element(geom, srid):
     if geom.geom_type == 'Polygon':
         geom = MultiPolygon([geom])
     return WKTElement(geom.wkt, srid)
-
-def zScore(df, numericColumns):
-    df[numericColumns] = df[numericColumns].apply(zscore)
-    print(df.head())
 
 if __name__ == "__main__":
 
@@ -196,11 +189,3 @@ if __name__ == "__main__":
     # Cleaning the data while keeping the original data-files
     Business, Income, PollingPlace, Population, Stops = cleanCSV(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, stops = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, Stops, srid)
-
-    # Finding the z-scores
-    BusinessNumCols = ['0kto50k', '50kto200k', '200kto2M', '2Mto5M', '5Mto10M', '10MOver', 'TotalBusinesses']
-    zScore(Business, BusinessNumCols)
-    IncomeNumCols = ['MedianAge', 'MedianIncome', 'MeanIncome']
-    zScore(Income, IncomeNumCols)
-    PopulationNumCols = ['0to4', '5to9', '10to14', '15to19', '20to24', '25to29', '30to34', '35to39', '40to44', '45to49', '50to54', '55to59', '60to64', '65to69', '70to74', '75to79', '80to84', '85Over', 'TotalPeople']
-    zScore(Population, PopulationNumCols)
