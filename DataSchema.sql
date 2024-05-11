@@ -1,63 +1,73 @@
 CREATE TABLE CatchmentsPrimary (
     USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR(255),
-    Use_desc VARCHAR(255),
-    Add_date DATE,
-    Kindergarten VARCHAR,
-    Year1 VARCHAR,
-    Year2 VARCHAR,
-    Year3 VARCHAR,
-    Year4 VARCHAR,
-    Year5 VARCHAR,
-    Year6 VARCHAR,
-    Year7 VARCHAR,
-    Year8 VARCHAR,
-    Year9 VARCHAR,
-    Year10 VARCHAR,
-    Year11 VARCHAR,
-    Year12 VARCHAR
+    CATCH_TYPE VARCHAR(255),
+    USE_DESC VARCHAR(255),
+    ADD_DATE DATE,
+    KINDERGART VARCHAR(255),
+    YEAR1 VARCHAR(255),
+    YEAR2 VARCHAR(255),
+    YEAR3 VARCHAR(255),
+    YEAR4 VARCHAR(255),
+    YEAR5 VARCHAR(255),
+    YEAR6 VARCHAR(255),
+    YEAR7 VARCHAR(255),
+    YEAR8 VARCHAR(255),
+    YEAR9 VARCHAR(255),
+    YEAR10 VARCHAR(255),
+    YEAR11 VARCHAR(255),
+    YEAR12 VARCHAR(255),
+    PRIORITYCOL VARCHAR(255),
+    -- Check the above Col
+    Geom VARCHAR(255)
 );
 
 CREATE TABLE CatchmentsSecondary (
     USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR(255),
-    Use_desc VARCHAR(255),
-    Add_date DATE,
-    Kindergarten VARCHAR,
-    Year1 VARCHAR,
-    Year2 VARCHAR,
-    Year3 VARCHAR,
-    Year4 VARCHAR,
-    Year5 VARCHAR,
-    Year6 VARCHAR,
-    Year7 VARCHAR,
-    Year8 VARCHAR,
-    Year9 VARCHAR,
-    Year10 VARCHAR,
-    Year11 VARCHAR,
-    Year12 VARCHAR
+    CATCH_TYPE VARCHAR(255),
+    USE_DESC VARCHAR(255),
+    ADD_DATE DATE,
+    KINDERGART VARCHAR(255),
+    YEAR1 VARCHAR(255),
+    YEAR2 VARCHAR(255),
+    YEAR3 VARCHAR(255),
+    YEAR4 VARCHAR(255),
+    YEAR5 VARCHAR(255),
+    YEAR6 VARCHAR(255),
+    YEAR7 VARCHAR(255),
+    YEAR8 VARCHAR(255),
+    YEAR9 VARCHAR(255),
+    YEAR10 VARCHAR(255),
+    YEAR11 VARCHAR(255),
+    YEAR12 VARCHAR(255),
+    PRIORITYCOL VARCHAR(255),
+    -- Check the above Col
+    Geom VARCHAR(255)
+    -- Check the above Col
 );
 
 CREATE TABLE CatchmentsFuture (
     USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR(255),
-    Use_desc VARCHAR(255),
-    Add_date DATE,
-    Kindergarten VARCHAR,
-    Year1 INTEGER,
-    Year2 INTEGER,
-    Year3 INTEGER,
-    Year4 INTEGER,
-    Year5 INTEGER,
-    Year6 INTEGER,
-    Year7 INTEGER,
-    Year8 INTEGER,
-    Year9 INTEGER,
-    Year10 INTEGER,
-    Year11 INTEGER,
-    Year12 INTEGER
+    CATCH_TYPE VARCHAR(255),
+    USE_DESC VARCHAR(255),
+    ADD_DATE DATE,
+    KINDERGART INT,
+    YEAR1 INT,
+    YEAR2 INT,
+    YEAR3 INT,
+    YEAR4 INT,
+    YEAR5 INT,
+    YEAR6 INT,
+    YEAR7 INT,
+    YEAR8 INT,
+    YEAR9 INT,
+    YEAR10 INT,
+    YEAR11 INT,
+    YEAR12 INT,
+    Geom GEOMETRY(POINT,4326)
+    -- Check the above Col
 );
 
+-- Rename the columns for SA2
 CREATE TABLE SA2 (
     SA2Code INTEGER PRIMARY KEY,
     SA2Name VARCHAR(255),
@@ -73,17 +83,21 @@ CREATE TABLE SA2 (
     STEName VARCHAR(255),
     AUSCode VARCHAR(255),
     AUSName VARCHAR(255),
-    AREA FLOAT
+    AREA FLOAT,
+    LOCI_URI21 VARCHAR(255),
+    -- Check the above Col
+    Geom GEOMETRY(POINT,4326)
+    -- Check the above Col
 );
 
 
 CREATE TABLE Income (
     SA2code INTEGER PRIMARY KEY,
     SA2name VARCHAR(255),
-    Earners INTEGER,
-    MedianAge INTEGER,
-    MedianIncome INTEGER,
-    MeanIncome INTEGER
+    earners FLOAT,
+    MedianAge FLOAT,
+    MedianIncome FLOAT,
+    MeanIncome FLOAT
 );
 
 CREATE TABLE Population (
@@ -112,19 +126,21 @@ CREATE TABLE Population (
 
 CREATE TABLE Businesses (
 	FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
+    -- Check Above
     IndustryCode VARCHAR(255),
     IndustryName VARCHAR(255),
-    SA2code INTEGER,
+    SA2code INT,
     SA2name VARCHAR(255),
-    Earning0kto50k INTEGER,
-    Earning50kto200k INTEGER,
-    Earning200kto2M INTEGER,
-    Earning2Mto5M INTEGER,
-    Earning5Mto10M INTEGER,
-    Earning10MOver INTEGER,
-    TotalBusinesses INTEGER
+    Earning0kto50k INT,
+    Earning50kto200k INT,
+    Earning200kto2M INT,
+    Earning2Mto5M INT,
+    Earning5Mto10M INT,
+    Earning10MOver INT,
+    TotalBusinesses INT
 );
 
+-- Change State Col name to StateABV
 CREATE TABLE PollingPlaces (
     FID VARCHAR(255) PRIMARY KEY,
     DivisionName VARCHAR(255),
@@ -144,6 +160,7 @@ CREATE TABLE PollingPlaces (
     Geom GEOMETRY(POINT,4326)
 );
 
+-- Drop Geometry in cleaning
 CREATE TABLE Stops (
     StopID INTEGER,
     StopCode INTEGER,

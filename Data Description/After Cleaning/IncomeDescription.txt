@@ -1,0 +1,59 @@
+Head:
+     SA2code                          SA2name  earners  MedianAge  MedianIncome  MeanIncome
+0  101021007                        Braidwood   2467.0       51.0       46640.0     68904.0
+1  101021008                          Karabar   5103.0       42.0       65564.0     69672.0
+2  101021009                       Queanbeyan   7028.0       39.0       63528.0     69174.0
+3  101021010                Queanbeyan - East   3398.0       39.0       66148.0     74162.0
+4  101021012  Queanbeyan West - Jerrabomberra   8422.0       44.0       78630.0     91981.0
+
+Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 642 entries, 0 to 641
+Data columns (total 6 columns):
+ #   Column        Non-Null Count  Dtype  
+---  ------        --------------  -----  
+ 0   SA2code       642 non-null    int64  
+ 1   SA2name       642 non-null    object 
+ 2   earners       635 non-null    float64
+ 3   MedianAge     635 non-null    float64
+ 4   MedianIncome  635 non-null    float64
+ 5   MeanIncome    635 non-null    float64
+dtypes: float64(4), int64(1), object(1)
+memory usage: 30.2+ KB
+
+
+Description:
+            SA2code       earners   MedianAge   MedianIncome     MeanIncome
+count  6.420000e+02    635.000000  635.000000     635.000000     635.000000
+mean   1.148262e+08   7248.977953   43.137008   55747.891339   70866.686614
+std    8.158956e+06   3584.889682    4.922920   10606.646005   23357.287450
+min    1.010210e+08      3.000000   28.000000   18953.000000   20168.000000
+25%    1.080137e+08   4327.000000   40.000000   48773.000000   56553.000000
+50%    1.160113e+08   7115.000000   43.000000   54732.000000   65344.000000
+75%    1.220189e+08   9809.500000   47.000000   61665.000000   77290.500000
+max    1.280216e+08  16374.000000   60.000000  116473.000000  209607.000000
+
+Columns:
+['SA2code', 'SA2name', 'earners', 'MedianAge', 'MedianIncome', 'MeanIncome']
+
+Shape:
+(642, 6)
+
+Data Types:
+SA2code           int64
+SA2name          object
+earners         float64
+MedianAge       float64
+MedianIncome    float64
+MeanIncome      float64
+dtype: object
+
+Missing Values:
+SA2code         0
+SA2name         0
+earners         7
+MedianAge       7
+MedianIncome    7
+MeanIncome      7
+dtype: int64
+
