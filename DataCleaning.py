@@ -53,12 +53,12 @@ def cleanCSV(Business, Income, PollingPlace, Population, Stops):
     Business.rename(columns = {'industry_name':'IndustryName'}, inplace = True)
     Business.rename(columns = {'sa2_code':'SA2code'}, inplace = True)
     Business.rename(columns = {'sa2_name':'SA2name'}, inplace = True)
-    Business.rename(columns = {'0_to_50k_businesses':'0kto50k'}, inplace = True)
-    Business.rename(columns = {'50k_to_200k_businesses':'50kto200k'}, inplace = True)
-    Business.rename(columns = {'200k_to_2m_businesses':'200kto2M'}, inplace = True)
-    Business.rename(columns = {'2m_to_5m_businesses':'2Mto5M'}, inplace = True)
-    Business.rename(columns = {'5m_to_10m_businesses':'5Mto10M'}, inplace = True)
-    Business.rename(columns = {'10m_or_more_businesses':'10MOver'}, inplace = True)
+    Business.rename(columns = {'0_to_50k_businesses':'Earning0kto50k'}, inplace = True)
+    Business.rename(columns = {'50k_to_200k_businesses':'Earning50kto200k'}, inplace = True)
+    Business.rename(columns = {'200k_to_2m_businesses':'Earning200kto2M'}, inplace = True)
+    Business.rename(columns = {'2m_to_5m_businesses':'Earning2Mto5M'}, inplace = True)
+    Business.rename(columns = {'5m_to_10m_businesses':'Earning5Mto10M'}, inplace = True)
+    Business.rename(columns = {'10m_or_more_businesses':'Earning10MOver'}, inplace = True)
     Business.rename(columns = {'total_businesses':'TotalBusinesses'}, inplace = True)
 
     # Income
@@ -190,5 +190,5 @@ if __name__ == "__main__":
     describeData(SA2DigitalBoundaries, 'Data Description/SA2DigitalBoundariesDescription.txt')
 
     # Cleaning the data while keeping the original data-files
-    Business, Income, PollingPlace, Population, Stops = cleanCSV(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
+    Businesses, Income, PollingPlace, Population, Stops = cleanCSV(BusinessCSV, IncomeCSV, PollingPlacesCSV, PopulationCSV, StopsCSV)
     CPrimary, CSecondary, CFuture, SA2, Stops = cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, Stops, srid)

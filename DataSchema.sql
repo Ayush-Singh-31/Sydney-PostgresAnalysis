@@ -1,52 +1,131 @@
+CREATE TABLE CatchmentsPrimary (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR(255),
+    Use_desc VARCHAR(255),
+    Add_date DATE,
+    Kindergarten VARCHAR,
+    Year1 VARCHAR,
+    Year2 VARCHAR,
+    Year3 VARCHAR,
+    Year4 VARCHAR,
+    Year5 VARCHAR,
+    Year6 VARCHAR,
+    Year7 VARCHAR,
+    Year8 VARCHAR,
+    Year9 VARCHAR,
+    Year10 VARCHAR,
+    Year11 VARCHAR,
+    Year12 VARCHAR
+);
+
+CREATE TABLE CatchmentsSecondary (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR(255),
+    Use_desc VARCHAR(255),
+    Add_date DATE,
+    Kindergarten VARCHAR,
+    Year1 VARCHAR,
+    Year2 VARCHAR,
+    Year3 VARCHAR,
+    Year4 VARCHAR,
+    Year5 VARCHAR,
+    Year6 VARCHAR,
+    Year7 VARCHAR,
+    Year8 VARCHAR,
+    Year9 VARCHAR,
+    Year10 VARCHAR,
+    Year11 VARCHAR,
+    Year12 VARCHAR
+);
+
+CREATE TABLE CatchmentsFuture (
+    USE_ID INTEGER PRIMARY KEY,
+    Catch_type VARCHAR(255),
+    Use_desc VARCHAR(255),
+    Add_date DATE,
+    Kindergarten VARCHAR,
+    Year1 INTEGER,
+    Year2 INTEGER,
+    Year3 INTEGER,
+    Year4 INTEGER,
+    Year5 INTEGER,
+    Year6 INTEGER,
+    Year7 INTEGER,
+    Year8 INTEGER,
+    Year9 INTEGER,
+    Year10 INTEGER,
+    Year11 INTEGER,
+    Year12 INTEGER
+);
+
+CREATE TABLE SA2 (
+    SA2Code INTEGER PRIMARY KEY,
+    SA2Name VARCHAR(255),
+    CHGFalg INTEGER,
+    CHGLable VARCHAR(255),
+    SA3Code INTEGER,
+    SA3Name VARCHAR(255),
+    SA4Code INTEGER,
+    SA4Name VARCHAR(255),
+    GCCCode VARCHAR(255),
+    GCCName VARCHAR(255),
+    STECode INTEGER,
+    STEName VARCHAR(255),
+    AUSCode VARCHAR(255),
+    AUSName VARCHAR(255),
+    AREA FLOAT
+);
+
+
 CREATE TABLE Income (
-    
     SA2code INTEGER PRIMARY KEY,
     SA2name VARCHAR(255),
     Earners INTEGER,
     MedianAge INTEGER,
     MedianIncome INTEGER,
-    MeanIncome INTEGER,
+    MeanIncome INTEGER
 );
+
 CREATE TABLE Population (
     SA2code INTEGER PRIMARY KEY,
     SA2name VARCHAR(255),
-    0to4 INTEGER,
-    5to9 INTEGER,
-    10to14 INTEGER,
-    15to19 INTEGER,
-    20to24 INTEGER,
-    25to29 INTEGER,
-    30to34 INTEGER,
-    35to39 INTEGER,
-    40to44 INTEGER,
-    45to49 INTEGER,
-    50to54 INTEGER,
-    55to59 INTEGER,
-    60to64 INTEGER,
-    65to69 INTEGER,
-    70to74 INTEGER,
-    75to79 INTEGER,
-    80to84 INTEGER,
-    85Over INTEGER,
-    TotalPeople INTEGER,
-    -- FOREIGN KEY (SA2code) REFERENCES Income(SA2code)
+    Age0to4 INTEGER,
+    Age5to9 INTEGER,
+    Age10to14 INTEGER,
+    Age15to19 INTEGER,
+    Age20to24 INTEGER,
+    Age25to29 INTEGER,
+    Age30to34 INTEGER,
+    Age35to39 INTEGER,
+    Age40to44 INTEGER,
+    Age45to49 INTEGER,
+    Age50to54 INTEGER,
+    Age55to59 INTEGER,
+    Age60to64 INTEGER,
+    Age65to69 INTEGER,
+    Age70to74 INTEGER,
+    Age75to79 INTEGER,
+    Age80to84 INTEGER,
+    Age85Over INTEGER,
+    TotalPeople INTEGER
 );
+
 CREATE TABLE Businesses (
+	FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
     IndustryCode VARCHAR(255),
     IndustryName VARCHAR(255),
-    SA2code INTEGER PRIMARY KEY,
+    SA2code INTEGER,
     SA2name VARCHAR(255),
-    0kto50k INTEGER,
-    50kto200k INTEGER,
-    200kto2M INTEGER,
-    2Mto5M INTEGER,
-    5Mto10M INTEGER,
-    10MOver INTEGER,
-    TotalBusinesses INTEGER,
-    FOREIGN KEY (SA2code)
+    Earning0kto50k INTEGER,
+    Earning50kto200k INTEGER,
+    Earning200kto2M INTEGER,
+    Earning2Mto5M INTEGER,
+    Earning5Mto10M INTEGER,
+    Earning10MOver INTEGER,
+    TotalBusinesses INTEGER
 );
+
 CREATE TABLE PollingPlaces (
-    -- Check the column names with CSV
     FID VARCHAR(255) PRIMARY KEY,
     DivisionName VARCHAR(255),
     DivisionID INTEGER,
@@ -62,8 +141,7 @@ CREATE TABLE PollingPlaces (
     Postcode INTEGER,
     Latitude NUMERIC,
     Longitude NUMERIC,
-    Geom GEOMETRY(POINT,4326),
-    -- FOREIGN KEY (SA2_ID) REFERENCES SA2_Regions(SA2_ID)
+    Geom GEOMETRY(POINT,4326)
 );
 
 CREATE TABLE Stops (
@@ -73,83 +151,6 @@ CREATE TABLE Stops (
     LocationType VARCHAR(255),
     ParentStation VARCHAR(255),
     WheelchairBoarding INTEGER,
-    PlatformCode INTEGER
+    PlatformCode INTEGER,
     geom GEOMETRY(POINT,4326)
-);
-
-CREATE TABLE Primary (
-    USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR (255),
-    Use_desc VARCHAR(255),
-    Add_date INTEGER,
-    Kindergarten VARCHAR,
-    Year1 VARCHAR,
-    Year2 VARCHAR,
-    Year3 VARCHAR,
-    Year4 VARCHAR,
-    Year5 VARCHAR,
-    Year6 VARCHAR,
-    Year7 VARCHAR,
-    Year8 VARCHAR,
-    Year9 VARCHAR,
-    Year10 VARCHAR,
-    Year11 VARCHAR,
-    Year12 VARCHAR,
-);
-
-CREATE TABLE Secondary (
-    USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR (255),
-    Use_desc VARCHAR(255),
-    Add_date INTEGER,
-    Kindergarten VARCHAR,
-    Year1 VARCHAR,
-    Year2 VARCHAR,
-    Year3 VARCHAR,
-    Year4 VARCHAR,
-    Year5 VARCHAR,
-    Year6 VARCHAR,
-    Year7 VARCHAR,
-    Year8 VARCHAR,
-    Year9 VARCHAR,
-    Year10 VARCHAR,
-    Year11 VARCHAR,
-    Year12 VARCHAR,
-);
-
-CREATE TABLE Future (
-    USE_ID INTEGER PRIMARY KEY,
-    Catch_type VARCHAR (255),
-    Use_desc VARCHAR(255),
-    Add_date INTEGER,
-    Kindergarten VARCHAR,
-    Year1 INTEGER,
-    Year2 INTEGER,
-    Year3 INTEGER,
-    Year4 INTEGER,
-    Year5 INTEGER,
-    Year6 INTEGER,
-    Year7 INTEGER,
-    Year8 INTEGER,
-    Year9 INTEGER,
-    Year10 INTEGER,
-    Year11 INTEGER,
-    Year12 INTEGER,
-);
-CREATE TABLE SA2 (
-    SA2_CODE INTEGER,
-    SA2_NAME21 VARCHAR,
-    CHG_FLAG21 INTEGER,
-    CHG_LBL21 VARCHAR,
-    SA3_CODE21 INTEGER,
-    SA3_NAME21 VARCHAR,
-    SA4_CODE21 INTEGER,
-    SA4_NAME21 VARCHAR,
-    GCC_CODE21 VARCHAR,
-    GCC_NAME21 VARCHAR,
-    STE_CODE21 INTEGER,
-    STE_NAME21 VARCHAR,
-    AUS_CODE21 VARCHAR,
-    AUS_NAME21 VARCHAR,
-    AREASQKM21 FLOAT
 );
