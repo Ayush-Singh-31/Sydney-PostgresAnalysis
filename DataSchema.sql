@@ -142,6 +142,7 @@ CREATE TABLE Businesses (
 
 -- Change State Col name to StateABV
 CREATE TABLE PollingPlaces (
+    FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
     FID VARCHAR(255) PRIMARY KEY,
     DivisionName VARCHAR(255),
     DivisionID INTEGER,
