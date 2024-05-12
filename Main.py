@@ -1,10 +1,8 @@
-import os
-import json
+import os, json, psycopg2
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import geopandas as gpd
-import psycopg2
 import matplotlib.pyplot as plt
 from geoalchemy2 import WKTElement
 from shapely.geometry import MultiPolygon
