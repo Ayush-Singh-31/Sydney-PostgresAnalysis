@@ -286,3 +286,4 @@ if __name__ == "__main__":
 
     credentials = "Credentials.json"
     db, conn = pgconnect(credentials)
+    print(query(conn, "select PostGIS_Version()"))
