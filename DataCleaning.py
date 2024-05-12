@@ -181,6 +181,8 @@ def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2Di
     # Converting to multipolygon
     SA2DigitalBoundaries['Geometry'] = SA2DigitalBoundaries['geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
     SA2DigitalBoundaries = SA2DigitalBoundaries.drop(columns="geometry")
+
+    # CatchmentPrimaryxx
     
     CatchmentPrimary['Geom'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
     CatchmentFuture['Geom'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
@@ -286,4 +288,12 @@ if __name__ == "__main__":
 
     credentials = "Credentials.json"
     db, conn = pgconnect(credentials)
-    print(query(conn, "select PostGIS_Version()"))
+    with open('Schema.sql', 'r') as file:
+        schema = file.read()
+
+    # Execute the schema
+    try:
+        conn.execute(text(schema))
+        print('Schema executed successfully.')
+    except Exception as e:
+        print("Error executing schema:", e)

@@ -130,13 +130,13 @@ CREATE TABLE Businesses (
     "2Mto5M" INT,
     "5Mto10M" INT,
     "10MOver" INT,
-    TotalBusinesses INT,
-    FOREIGN KEY (SA2code) REFERENCES SA2(SA2code)
+    TotalBusinesses INT
+    -- FOREIGN KEY (SA2code) REFERENCES SA2("SA2Code")
 );
 
 -- Change State Col name to StateABV
 CREATE TABLE PollingPlaces (
-    FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
+    -- FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
     FID VARCHAR(255) PRIMARY KEY,
     DivisionName VARCHAR(255),
     DivisionID INTEGER,
