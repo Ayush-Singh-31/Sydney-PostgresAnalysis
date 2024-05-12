@@ -1,4 +1,4 @@
-import os
+import os, json, pgquery
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -7,6 +7,8 @@ from sqlalchemy.types import Integer, String
 from shapely.wkt import loads
 from shapely.geometry import MultiPolygon
 from geoalchemy2 import Geometry, WKTElement
+
+srid = 4326
 
 def create_wkt_element(geom, srid):
     if geom.geom_type == 'Polygon':
@@ -88,7 +90,11 @@ SA2DigitalBoundaries['Area'] = SA2DigitalBoundaries['Area'].astype(float)
 SA2DigitalBoundaries['Geometry'] = SA2DigitalBoundaries['geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
 SA2DigitalBoundaries = SA2DigitalBoundaries.drop(columns="geometry")
 
+SA2 = SA2DigitalBoundaries
 credentials = "Credentials.json"
+
 db, conn = pgconnect(credentials)
 with open('Schema.sql', 'r') as file:
     schema = file.read()
+
+pgquery(conn.execute(schema))
