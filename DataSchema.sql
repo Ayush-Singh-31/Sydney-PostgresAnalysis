@@ -67,29 +67,24 @@ CREATE TABLE CatchmentsFuture (
     -- Check the above Col
 );
 
--- Rename the columns for SA2
 CREATE TABLE SA2 (
-    SA2Code INTEGER PRIMARY KEY,
-    SA2Name VARCHAR(255),
-    CHGFalg INTEGER,
-    CHGLable VARCHAR(255),
-    SA3Code INTEGER,
-    SA3Name VARCHAR(255),
-    SA4Code INTEGER,
-    SA4Name VARCHAR(255),
-    GCCCode VARCHAR(255),
-    GCCName VARCHAR(255),
-    STECode INTEGER,
-    STEName VARCHAR(255),
-    AUSCode VARCHAR(255),
-    AUSName VARCHAR(255),
-    AREA FLOAT,
-    LOCI_URI21 VARCHAR(255),
-    -- Check the above Col
-    Geom GEOMETRY(POINT,4326)
-    -- Check the above Col
+    "SA2Code" INTEGER PRIMARY KEY,
+    "SA2Name" VARCHAR(255),
+    "CHGFlag" INTEGER,
+    "CHGLabel" VARCHAR(255),
+    "SA3Code" INTEGER,
+    "SA3Name" VARCHAR(255),
+    "SA4Code" INTEGER,
+    "SA4Name" VARCHAR(255),
+    "GCCCode" VARCHAR(255),
+    "GCCName" VARCHAR(255),
+    "STECode" INTEGER,
+    "STEName" VARCHAR(255),
+    "AUSCode" VARCHAR(255),
+    "AUSName" VARCHAR(255),
+    "AREA" FLOAT,
+    "Geometry" GEOMETRY(GEOMETRY, 4326)
 );
-
 
 CREATE TABLE Income (
     SA2code INTEGER PRIMARY KEY,
@@ -125,19 +120,18 @@ CREATE TABLE Population (
 );
 
 CREATE TABLE Businesses (
-	FOREIGN KEY (SA2code) REFERENCES SA2(SA2code),
-    -- Check Above
     IndustryCode VARCHAR(255),
     IndustryName VARCHAR(255),
     SA2code INT,
     SA2name VARCHAR(255),
-    Earning0kto50k INT,
-    Earning50kto200k INT,
-    Earning200kto2M INT,
-    Earning2Mto5M INT,
-    Earning5Mto10M INT,
-    Earning10MOver INT,
-    TotalBusinesses INT
+    "0kto50k" INT,
+    "50kto200k" INT,
+    "200kto2M" INT,
+    "2Mto5M" INT,
+    "5Mto10M" INT,
+    "10MOver" INT,
+    TotalBusinesses INT,
+    FOREIGN KEY (SA2code) REFERENCES SA2(SA2code)
 );
 
 -- Change State Col name to StateABV
