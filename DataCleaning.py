@@ -68,13 +68,14 @@ def cleanCSV(Business, Income, PollingPlace, Population, Stops):
 def cleanGeospatial(CatchmentPrimary, CatchmentSecondary, CatchmentFuture, SA2DigitalBoundaries, StopsCSV, srid):
 
     SA2DigitalBoundaries.drop(columns=['LOCI_URI21'], inplace=True) 
+    SA2DigitalBoundaries.dropna(subset=['geometry'], inplace=True)
     SA2DigitalBoundaries = SA2DigitalBoundaries[SA2DigitalBoundaries['GCC_NAME21'] == 'Greater Sydney'].copy()
     SA2DigitalBoundaries['Geometry'] = SA2DigitalBoundaries['geometry'].apply(lambda x: x.wkt if x is not None else x)
     SA2DigitalBoundaries = SA2DigitalBoundaries.drop(columns="geometry")
     
-    CatchmentPrimary['Geom'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
-    CatchmentFuture['Geom'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
-    CatchmentSecondary['Geom'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=srid))  
+    CatchmentPrimary['Geom'] = CatchmentPrimary['geometry'].apply(lambda x: x.wkt if x is not None else x)
+    CatchmentFuture['Geom'] = CatchmentFuture['geometry'].apply(lambda x: x.wkt if x is not None else x)  
+    CatchmentSecondary['Geom'] = CatchmentSecondary['geometry'].apply(lambda x: x.wkt if x is not None else x)
     StopsCSV['Geometry'] = gpd.points_from_xy(StopsCSV.Latitude, StopsCSV.Longitude)  
     StopsCSV['Geom'] = StopsCSV['Geometry'].apply(lambda x: WKTElement(x.wkt, srid=srid))
 
