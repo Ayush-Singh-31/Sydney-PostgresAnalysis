@@ -42,6 +42,8 @@ def query(conn, sqlcmd, args=None, df=True):
 def create_wkt_element(geom, srid):
     if geom.geom_type == 'Polygon':
         geom = MultiPolygon([geom])
+    elif geom.geom_type == 'Point':
+        geom = Point([xy[0:2] for xy in list(geom.coords)])
     return WKTElement(geom.wkt, srid)
 
 def importSA2(currentDir, conn) -> None:
@@ -357,4 +359,3 @@ if __name__ == "__main__":
     importPolpulation(currentDir, conn)
     importStops(currentDir, conn)
 
-    
