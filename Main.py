@@ -385,4 +385,5 @@ if __name__ == "__main__":
     ON p.sa2_code = b.sa2_code 
     WHERE industry_name = 'Electricity, Gas, Water and Waste Services'
     """
-    print(query(conn, schema))
+    query(conn, schema)
+    print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
