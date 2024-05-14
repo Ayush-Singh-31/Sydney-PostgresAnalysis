@@ -57,11 +57,12 @@ def importSA2(currentDir, conn) -> None:
     SA2DigitalBoundaries.drop(columns=['LOCI_URI21','CHG_FLAG21','CHG_LBL21','SA3_CODE21','SA3_NAME21','SA4_CODE21','SA4_NAME21',"GCC_CODE21", "GCC_NAME21", "STE_CODE21" ,  "STE_NAME21" , "AUS_CODE21", "AUS_NAME21"], inplace=True)
     SA2DigitalBoundaries.drop_duplicates(inplace=True)
     SA2DigitalBoundaries.dropna(inplace=True)
+    SA2DigitalBoundaries.rename(columns={"SA2_CODE21":"sa2_code21","SA2_NAME21":"sa2_name21"}, inplace=True)
     schema = """
     DROP TABLE IF EXISTS SA2;
     CREATE TABLE SA2 (
-        "SA2_CODE21" INTEGER,
-        "SA2_NAME21" VARCHAR(255),
+        "sa2_code21" INTEGER,
+        "sa2_name21" VARCHAR(255),
         "AREASQKM21" FLOAT,
         "geom" GEOMETRY(MULTIPOLYGON, 4326)
     );
@@ -196,7 +197,7 @@ def importPolling(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from pollingplace"))
 
-def importPolpulation(currentDir, conn) -> None:
+def importPopulation(currentDir, conn) -> None:
     PopulationPath = os.path.join(currentDir, "Data", "Population.csv")
     Population = pd.read_csv(PopulationPath)
     Population.drop_duplicates(inplace=True)
@@ -245,9 +246,9 @@ def importStops(currentDir, conn) -> None:
     Stops['parent_station'] = pd.to_numeric(Stops['parent_station'], errors='coerce').fillna(0).astype(int)
     Stops['location_type'] = pd.to_numeric(Stops['location_type'], errors='coerce').fillna(0).astype(int)
     Stops['stop_code'] = pd.to_numeric(Stops['stop_code'], errors='coerce').fillna(0).astype(int)
-    Stops['geom'] = gpd.points_from_xy(Stops.stop_lon, Stops.stop_lat) 
-    Stops['Geometry'] = Stops['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
-    Stops = Stops.drop(columns=['stop_lat', 'stop_lon','geom','location_type','parent_station','wheelchair_boarding','platform_code'])
+    Stops['geometry'] = gpd.points_from_xy(Stops.stop_lon, Stops.stop_lat) 
+    Stops['geom'] = Stops['geometry'].apply(lambda x: WKTElement(x.wkt, srid=4326))
+    Stops = Stops.drop(columns=['stop_lat', 'stop_lon','geometry','location_type','parent_station','wheelchair_boarding','platform_code'])
     Stops.drop_duplicates(inplace=True)
     Stops.dropna(inplace=True)
     schema = """
@@ -256,7 +257,7 @@ def importStops(currentDir, conn) -> None:
         "stop_id" VARCHAR(255),
         "stop_code" INTEGER,
         "stop_name" VARCHAR(255),
-        "Geometry" GEOMETRY(POINT, 4326)
+        "geom" GEOMETRY(POINT, 4326)
     );
     """
     try:
@@ -264,7 +265,7 @@ def importStops(currentDir, conn) -> None:
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
-        Stops.to_sql("stops", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+        Stops.to_sql("stops", conn, if_exists='append', index=False, dtype={'geom': Geometry('POINT', 4326)})
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from stops"))
@@ -274,7 +275,7 @@ def indexing(conn) -> None:
     query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Bussiness ON Business ("sa2_code")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Income ON Income ("sa2_code21")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Population ON Population ("sa2_code")""")
-    query(conn,"""CREATE INDEX IF NOT EXISTS indexStops ON Stops USING GIST("Geometry")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexStops ON Stops USING GIST("geom")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexPolling ON PollingPlace USING GIST("the_geom")""")
 
 def importTrees(currentDir, conn) -> None:
@@ -372,7 +373,7 @@ if __name__ == "__main__":
     importBusiness(currentDir, conn)
     importIncome(currentDir, conn)
     importPolling(currentDir, conn)
-    importPolpulation(currentDir, conn)
+    importPopulation(currentDir, conn)
     importStops(currentDir, conn)
     importTrees(currentDir, conn)
     importParking(currentDir, conn)
@@ -381,9 +382,15 @@ if __name__ == "__main__":
     # print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
     schema = """
     CREATE TABLE stops_table AS 
-    SELECT s."SA2_CODE21", s."SA2_NAME21", (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
-    FROM Stops st JOIN SA2 s ON ST_Contains(st."Geometry", s.geom)
-    GROUP BY s."SA2_CODE21", s."SA2_NAME21";
+    SELECT s.SA2_CODE21, s.SA2_NAME21, 
+        (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
+    FROM SA2 s 
+    JOIN (
+        SELECT stop_id, geom
+        FROM Stops
+    ) st ON ST_Contains(s.geom, st.geom)
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
     """
-    query(conn, schema)
-    print(pd.read_sql_query("SELECT * FROM stops_table; ", conn))
+    # schema ="SELECT s.SA2_CODE21, s.SA2_NAME21 FROM SA2 s"
+    print(query(conn, schema))
+    print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn))
