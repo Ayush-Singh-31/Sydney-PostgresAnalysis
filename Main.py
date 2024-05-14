@@ -423,19 +423,11 @@ if __name__ == "__main__":
     db, conn = pgconnect(credentials)
 
     importSA2(currentDir, conn)
-
     importCPrimary(currentDir, conn)
-
     importCSecondary(currentDir, conn)
-
     importCFuture(currentDir, conn)
-
     importBusiness(currentDir, conn)
-
     importIncome(currentDir, conn)
-
     importPolling(currentDir, conn)
-
     importPolpulation(currentDir, conn)
-
     importStops(currentDir, conn)
