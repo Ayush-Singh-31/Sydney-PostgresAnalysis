@@ -32,12 +32,7 @@ schema = """
     """
 
 -- zschool
-schema = """
-CREATE TABLE school_table AS
-SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(sc.school_id) / SUM(p.0-4_people,p.5-9_people,p.10-14_people,p.15-19_people) * 1000 - AVG(COUNT(sc.school_id) / SUM(p.0-4_people,p.5-9_people,p.10-14_people,p.15-19_people) * 1000) OVER ()) / STDDEV_POP(COUNT(sc.school_id) / SUM(p.0-4_people,p.5-9_people,p.10-14_people,p.15-19_people) * 1000) OVER () AS zschool
-FROM Population p JOIN SA2 s ON (p.sa2_code = s.SA2_CODE21)
-JOIN School sc ON ST_Contains(sc.Geometry, s.geom)
-"""
+
 
 -- trees
 

@@ -205,10 +205,6 @@ def importPopulation(currentDir, conn) -> None:
     Population.drop_duplicates(inplace=True)
     Population.dropna(inplace=True)
     Population = Population[Population['total_people'] != 0]
-    #
-    Population["check"] = Population["0-4_people"] + Population["5-9_people"] + Population["10-14_people"] + Population["15-19_people"]
-    Population = Population[Population["check"] != 0]
-    Population.drop(columns=['check'], inplace=True)
     schema = """
     DROP TABLE IF EXISTS Population;
     CREATE TABLE Population (
@@ -291,8 +287,8 @@ def importTrees(currentDir, conn) -> None:
     Trees['geom'] = gpd.points_from_xy(Trees.Longitude, Trees.Latitude) 
     Trees['Geometry'] = Trees['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
     Trees = Trees.drop(columns=['Latitude', 'Longitude','geom'])
-    # Trees.drop_duplicates(inplace=True)
-    # Trees.dropna(inplace=True)
+    Trees.drop_duplicates(inplace=True)
+    Trees.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS trees;
     CREATE TABLE trees (
@@ -385,23 +381,3 @@ if __name__ == "__main__":
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
     indexing(conn)
-    sql= """
-    DROP TABLE IF EXISTS stair_table;
-    CREATE TABLE stair_table AS
-    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st."OBJECTID") - AVG(COUNT(st."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(st."OBJECTID")) OVER () AS zstairs
-    FROM SA2 s JOIN stairs st ON ST_Contains(s.geom, st."Geometry")
-    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
-    """
-    query(conn, sql)
-    print(pd.read_sql_query("SELECT * FROM stair_table;", conn))
-    # print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn)) 
-    schema = """
-    DROP TABLE IF EXISTS poll_table;
-    CREATE TABLE poll_table AS
-    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.division_name) - AVG(COUNT(p.division_name)) OVER ()) / STDDEV_POP(COUNT(p.division_name)) OVER () AS zpoll
-    FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.geom)
-    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
-    """
-    query(conn, schema)
-    print(pd.read_sql_query("SELECT * FROM poll_table order by zpoll desc;", conn))
-    
