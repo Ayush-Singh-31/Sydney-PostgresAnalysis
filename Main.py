@@ -92,7 +92,7 @@ def importSchool(currentDir, conn) -> None:
     school.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS School;
-    CREATE TABLE CatchmentCombined (
+    CREATE TABLE School (
         "USE_ID" INTEGER,
         "CATCH_TYPE" VARCHAR(255),
         "USE_DESC" VARCHAR(255),
@@ -376,5 +376,5 @@ if __name__ == "__main__":
     importTrees(currentDir, conn)
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
-    
+
     indexing(conn)
