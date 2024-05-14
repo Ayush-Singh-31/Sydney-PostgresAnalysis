@@ -58,7 +58,7 @@ def importSA2(currentDir, conn) -> None:
     schema = """
     DROP TABLE IF EXISTS SA2;
     CREATE TABLE SA2 (
-        "SA2_CODE21" INTEGER PRIMARY KEY,
+        "SA2_CODE21" INTEGER,
         "SA2_NAME21" VARCHAR(255),
         "CHG_FLAG21" INTEGER,
         "CHG_LBL21" VARCHAR(255),
@@ -94,36 +94,38 @@ def importSchool(currentDir, conn) -> None:
     CatchmentPrimary = gpd.read_file(CatchmentPrimaryPath)
     CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
-    CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
+    # CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
 
     CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
     CatchmentSecondary = gpd.read_file(CatchmentSecondaryPath)
     CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
-    CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
+    # CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
 
     CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
     CatchmentFuture = gpd.read_file(CatchmentFuturePath)
     CatchmentFuture['Geometry'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentFuture = CatchmentFuture.drop(columns="geometry")
     CatchmentFuture['KINDERGART'] = CatchmentFuture['KINDERGART'].astype(bool)
-    CatchmentFuture['YEAR1'] = CatchmentFuture['YEAR1'].astype(bool)
-    CatchmentFuture['YEAR2'] = CatchmentFuture['YEAR2'].astype(bool)
-    CatchmentFuture['YEAR3'] = CatchmentFuture['YEAR3'].astype(bool)
-    CatchmentFuture['YEAR4'] = CatchmentFuture['YEAR4'].astype(bool)
-    CatchmentFuture['YEAR5'] = CatchmentFuture['YEAR5'].astype(bool)
-    CatchmentFuture['YEAR6'] = CatchmentFuture['YEAR6'].astype(bool)
-    CatchmentFuture['YEAR7'] = CatchmentFuture['YEAR7'].astype(bool)
-    CatchmentFuture['YEAR8'] = CatchmentFuture['YEAR8'].astype(bool)
-    CatchmentFuture['YEAR9'] = CatchmentFuture['YEAR9'].astype(bool)
-    CatchmentFuture['YEAR10'] = CatchmentFuture['YEAR10'].astype(bool)
-    CatchmentFuture['YEAR11'] = CatchmentFuture['YEAR11'].astype(bool)
-    CatchmentFuture['YEAR12'] = CatchmentFuture['YEAR12'].astype(bool)
+    CatchmentFuture['YEAR1'] = CatchmentFuture['YEAR1'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR2'] = CatchmentFuture['YEAR2'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR3'] = CatchmentFuture['YEAR3'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR4'] = CatchmentFuture['YEAR4'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR5'] = CatchmentFuture['YEAR5'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR6'] = CatchmentFuture['YEAR6'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR7'] = CatchmentFuture['YEAR7'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR8'] = CatchmentFuture['YEAR8'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR9'] = CatchmentFuture['YEAR9'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR10'] = CatchmentFuture['YEAR10'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR11'] = CatchmentFuture['YEAR11'].astype(bool).map({True: 'Y', False: 'N'})
+    CatchmentFuture['YEAR12'] = CatchmentFuture['YEAR12'].astype(bool).map({True: 'Y', False: 'N'})
 
     school = pd.concat([CatchmentPrimary, CatchmentSecondary, CatchmentFuture])
+    school.drop_duplicates(inplace=True)
+    school.drop(columns=['PRIORITY'], inplace=True)
 
     schema = """
-    DROP TABLE IF EXISTS CatchmentCombined;
+    DROP TABLE IF EXISTS School;
     CREATE TABLE CatchmentCombined (
         "USE_ID" INTEGER,
         "CATCH_TYPE" VARCHAR(255),
@@ -142,8 +144,8 @@ def importSchool(currentDir, conn) -> None:
         "YEAR10" BOOLEAN,
         "YEAR11" BOOLEAN,
         "YEAR12" BOOLEAN,
-        "PRIORITY" INTEGER,
-        "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
+        "Geometry" GEOMETRY(MULTIPOLYGON, 4326),
+        PRIMARY KEY ("USE_ID","CATCH_TYPE")
     );
     """
     try:
@@ -152,11 +154,11 @@ def importSchool(currentDir, conn) -> None:
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
-        school.to_sql("catchmentcombined", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
+        school.to_sql("school", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
         print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
-    print(query(conn, "select * from catchmentcombined"))
+    print(query(conn, "select * from school"))
 
 def importBusiness(currentDir, conn) -> None:
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
@@ -324,7 +326,7 @@ def importStops(currentDir, conn) -> None:
     schema = """
     DROP TABLE IF EXISTS Stops;
     CREATE TABLE Stops (
-        "stop_id" VARCHAR(255) PRIMARY KEY,
+        "stop_id" VARCHAR(255),
         "stop_code" INTEGER,
         "stop_name" VARCHAR(255),
         "location_type" INTEGER,
@@ -358,4 +360,3 @@ if __name__ == "__main__":
     importPolling(currentDir, conn)
     importPolpulation(currentDir, conn)
     importStops(currentDir, conn)
-
