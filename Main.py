@@ -381,11 +381,9 @@ if __name__ == "__main__":
     # print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
     schema = """
     CREATE TABLE stops_table AS 
-    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
-    FROM Stops st JOIN SA2 s ON ST_Contains(st.Geometry, s.geom)
-    GROUP BY s.SA2_CODE21
+    SELECT s."SA2_CODE21", s."SA2_NAME21", (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
+    FROM Stops st JOIN SA2 s ON ST_Contains(st."Geometry", s.geom)
+    GROUP BY s."SA2_CODE21", s."SA2_NAME21";
     """
     query(conn, schema)
-    
-    
-    print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc", conn))
+    print(pd.read_sql_query("SELECT * FROM stops_table; ", conn))
