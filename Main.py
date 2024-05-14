@@ -123,6 +123,7 @@ def importSchool(currentDir, conn) -> None:
     school = pd.concat([CatchmentPrimary, CatchmentSecondary, CatchmentFuture])
     school.drop_duplicates(inplace=True)
     school.drop(columns=['PRIORITY'], inplace=True)
+    school = school[school['ADD_DATE'].notna()]
 
     schema = """
     DROP TABLE IF EXISTS School;
