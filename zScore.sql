@@ -68,3 +68,4 @@ sql = """
     GROUP BY s.SA2_CODE21, s.SA2_NAME21;
 """
 
+
