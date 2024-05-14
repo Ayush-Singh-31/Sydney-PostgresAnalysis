@@ -36,7 +36,8 @@ def query(conn, sqlcmd, args=None, df=True):
             result = conn.execute(text(sqlcmd), args).fetchall()
             result = result[0] if len(result) == 1 else result
     except Exception as e:
-        print("Error encountered: ", e, sep='\n')
+        notE = "This result object does not return rows. It has been closed automatically."
+        if str(e) != notE: print(e)
     return result
 
 def create_wkt_element(geom, srid):
@@ -268,8 +269,12 @@ def importStops(currentDir, conn) -> None:
     print(query(conn, "select * from stops"))
 
 def indexing(conn) -> None:
-    print(query(conn,"CREATE INDEX indexSA2Bussiness ON BUSINESS (SA2_CODE)"))
-    print(query(conn,"select * from BUSINESS limit 5"))
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2 ON SA2 USING GIST("geom")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Bussiness ON Business ("sa2_code")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Income ON Income ("sa2_code21")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Population ON Population ("sa2_code")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexStops ON Stops USING GIST("Geometry")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexPolling ON PollingPlace USING GIST("the_geom")""")
 
 if __name__ == "__main__":
     credentials = "Credentials.json"
