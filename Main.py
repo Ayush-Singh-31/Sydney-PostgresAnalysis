@@ -264,7 +264,29 @@ def importIncome(currentDir, conn) -> None:
     IncomePath = os.path.join(currentDir, "Data", "Income.csv")
     Income = pd.read_csv(IncomePath)
     Income.drop_duplicates()
-    print(Income.head())
+    print(Income.info())
+    schema = """
+    DROP TABLE IF EXISTS Income;
+    CREATE TABLE Income (
+        "sa2_code21" INTEGER,
+        "sa2_name" VARCHAR(255),
+        "earners" INTEGER,
+        "median_age" INTEGER,
+        "median_income" INTEGER,
+        "mean_income" INTEGER
+    );
+    """
+    try:
+        conn.execute(text(schema))
+        print("Table created successfully.")
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        Income.to_sql("income", conn, if_exists='append', index=False)
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from income"))
 
 if __name__ == "__main__":
     credentials = "Credentials.json"
