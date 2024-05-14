@@ -297,19 +297,145 @@ def importIncome(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from income"))
 
+def importPolling(currentDir, conn) -> None:
+    PollingPlacesPath = os.path.join(currentDir, "Data", "PollingPlaces2019.csv")
+    PollingPlace = pd.read_csv(PollingPlacesPath)
+    PollingPlace['premises_post_code'] = pd.to_numeric(PollingPlace['premises_post_code'], errors='coerce').fillna(0).astype(int)
+    PollingPlace.drop_duplicates()
+    PollingPlace.drop(columns=['longitude','latitude'], inplace=True)
+    PollingPlace['the_geom'] = PollingPlace['the_geom'].fillna('POINT (0 0)')
+    print(PollingPlace.head())
+    schema = """
+    DROP TABLE IF EXISTS PollingPlace;
+    CREATE TABLE PollingPlace (
+        "FID" VARCHAR(255),
+        "state" VARCHAR(255),
+        "division_id" INTEGER,
+        "division_name" VARCHAR(255),
+        "polling_place_id" INTEGER,
+        "polling_place_type_id" FLOAT,
+        "polling_place_name" VARCHAR(255),
+        "premises_name" VARCHAR(255),
+        "premises_address_1" VARCHAR(255),
+        "premises_address_2" VARCHAR(255),
+        "premises_address_3" VARCHAR(255),
+        "premises_suburb" VARCHAR(255),
+        "premises_state_abbreviation" VARCHAR(255),
+        "premises_post_code" INTEGER,
+        "the_geom" GEOMETRY(POINT, 4326)
+    );
+    """
+    try:
+        conn.execute(text(schema))
+        print("Table created successfully.")
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        PollingPlace.to_sql("pollingplace", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from pollingplace"))
+
+def importPolpulation(currentDir, conn) -> None:
+    PopulationPath = os.path.join(currentDir, "Data", "Population.csv")
+    Population = pd.read_csv(PopulationPath)
+    Population.drop_duplicates()
+    print(Population.head())
+    schema = """
+    DROP TABLE IF EXISTS Population;
+    CREATE TABLE Population (
+        "sa2_code" INTEGER,
+        "sa2_name" VARCHAR(255),
+        "0-4_people" INTEGER,
+        "5-9_people" INTEGER,
+        "10-14_people" INTEGER,
+        "15-19_people" INTEGER,
+        "20-24_people" INTEGER,
+        "25-29_people" INTEGER,
+        "30-34_people" INTEGER,
+        "35-39_people" INTEGER,
+        "40-44_people" INTEGER,
+        "45-49_people" INTEGER,
+        "50-54_people" INTEGER,
+        "55-59_people" INTEGER,
+        "60-64_people" INTEGER,
+        "65-69_people" INTEGER,
+        "70-74_people" INTEGER,
+        "75-79_people" INTEGER,
+        "80-84_people" INTEGER,
+        "85-and-over_people" INTEGER,
+        "total_people" INTEGER
+    );
+    """
+    try:
+        conn.execute(text(schema))
+        print("Table created successfully.")
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        Population.to_sql("population", conn, if_exists='append', index=False)
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from population"))
+
+def importStops(currentDir, conn) -> None:
+    stopsPath = os.path.join(currentDir, "Data", "Stops.txt")
+    Stops = pd.read_csv(stopsPath)
+    Stops.drop_duplicates()
+    Stops['platform_code'] = pd.to_numeric(Stops['platform_code'], errors='coerce').fillna(0).astype(int)
+    Stops['parent_station'] = pd.to_numeric(Stops['parent_station'], errors='coerce').fillna(0).astype(int)
+    Stops['location_type'] = pd.to_numeric(Stops['location_type'], errors='coerce').fillna(0).astype(int)
+    Stops['stop_code'] = pd.to_numeric(Stops['stop_code'], errors='coerce').fillna(0).astype(int)
+    Stops['geom'] = gpd.points_from_xy(Stops.stop_lon, Stops.stop_lat) 
+    Stops['Geometry'] = Stops['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
+    Stops = Stops.drop(columns=['stop_lat', 'stop_lon','geom'])
+    print(Stops.head())
+    schema = """
+    DROP TABLE IF EXISTS Stops;
+    CREATE TABLE Stops (
+        "stop_id" VARCHAR(255) PRIMARY KEY,
+        "stop_code" INTEGER,
+        "stop_name" VARCHAR(255),
+        "location_type" INTEGER,
+        "parent_station" INTEGER,
+        "wheelchair_boarding" INTEGER,
+        "platform_code" INTEGER,
+        "Geometry" GEOMETRY(POINT, 4326)
+    );
+    """
+    try:
+        conn.execute(text(schema))
+        print("Table created successfully.")
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        Stops.to_sql("stops", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from stops"))
+
 if __name__ == "__main__":
     credentials = "Credentials.json"
     currentDir = os.path.dirname(os.path.abspath(__file__))
     db, conn = pgconnect(credentials)
 
-    #importSA2(currentDir, conn)
+    importSA2(currentDir, conn)
 
     importCPrimary(currentDir, conn)
 
-    #importCSecondary(currentDir, conn)
+    importCSecondary(currentDir, conn)
 
-    #importCFuture(currentDir, conn)
+    importCFuture(currentDir, conn)
 
-    #importBusiness(currentDir, conn)
+    importBusiness(currentDir, conn)
 
-    # importIncome(currentDir, conn)
+    importIncome(currentDir, conn)
+
+    importPolling(currentDir, conn)
+
+    importPolpulation(currentDir, conn)
+
+    importStops(currentDir, conn)
