@@ -24,7 +24,7 @@ GROUP BY s.SA2_CODE21, s.SA2_NAME21;
 -- Now creating zpoll
 
 schema = """
-    DROP TABLE IF EXISTS buss_table;
+    DROP TABLE IF EXISTS poll_table;
     CREATE TABLE poll_table AS
     SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.division_name) - AVG(COUNT(p.division_name)) OVER ()) / STDDEV_POP(COUNT(p.division_name)) OVER () AS zpoll
     FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.geom)
@@ -39,4 +39,32 @@ FROM Population p JOIN SA2 s ON (p.sa2_code = s.SA2_CODE21)
 JOIN School sc ON ST_Contains(sc.Geometry, s.geom)
 """
 
+-- trees
+
+schema = """
+    DROP TABLE IF EXISTS tree_table;
+    CREATE TABLE tree_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(t."ObjectId") - AVG(COUNT(t."ObjectId")) OVER ()) / STDDEV_POP(COUNT(t."ObjectId")) OVER () AS ztrees
+    FROM SA2 s JOIN trees t ON ST_Contains(s.geom, t."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+"""
+
+--parking
+
+schema = """
+    DROP TABLE IF EXISTS park_table;
+    CREATE TABLE park_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p."OBJECTID") - AVG(COUNT(p."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(p."OBJECTID")) OVER () AS zpark
+    FROM SA2 s JOIN parking p ON ST_Contains(s.geom, p."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+"""
+
+-- stairs
+sql = """
+    DROP TABLE IF EXISTS stair_table;
+    CREATE TABLE stair_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st."OBJECTID") - AVG(COUNT(st."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(st."OBJECTID")) OVER () AS zstairs
+    FROM SA2 s JOIN stairs st ON ST_Contains(s.geom, st."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+"""
 
