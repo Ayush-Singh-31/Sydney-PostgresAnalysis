@@ -92,7 +92,12 @@ def importCPrimary(currentDir, conn) -> None:
     CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
     CatchmentPrimary.drop_duplicates()
+
+    CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
+
+    
     print(CatchmentPrimary.head())
+    print(CatchmentPrimary[["PRIORITY"]])
     schema = """
     DROP TABLE IF EXISTS CatchmentPrimary;
     CREATE TABLE CatchmentPrimary (
@@ -113,7 +118,7 @@ def importCPrimary(currentDir, conn) -> None:
         "YEAR10" BOOLEAN,
         "YEAR11" BOOLEAN,
         "YEAR12" BOOLEAN,
-        "PRIORITY" BOOLEAN,
+        "PRIORITY" INTEGER,
         "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
     );
     """
@@ -264,6 +269,13 @@ def importIncome(currentDir, conn) -> None:
     IncomePath = os.path.join(currentDir, "Data", "Income.csv")
     Income = pd.read_csv(IncomePath)
     Income.drop_duplicates()
+
+    Income.replace('np', 0, inplace=True)
+    Income['earners'] = Income['earners'].astype(int)
+    Income['median_age'] = Income['median_age'].astype(int)
+    Income['median_income'] = Income['median_income'].astype(int)
+    Income['mean_income'] = Income['mean_income'].astype(int)
+
     print(Income.info())
     schema = """
     DROP TABLE IF EXISTS Income;
@@ -295,7 +307,7 @@ if __name__ == "__main__":
 
     #importSA2(currentDir, conn)
 
-    #importCPrimary(currentDir, conn)
+    importCPrimary(currentDir, conn)
 
     #importCSecondary(currentDir, conn)
 
@@ -303,4 +315,4 @@ if __name__ == "__main__":
 
     #importBusiness(currentDir, conn)
 
-    importIncome(currentDir, conn)
+    # importIncome(currentDir, conn)
