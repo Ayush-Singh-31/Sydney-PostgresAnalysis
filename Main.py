@@ -381,3 +381,45 @@ if __name__ == "__main__":
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
     indexing(conn)
+    
+    sql = """
+    DROP TABLE IF EXISTS helper;
+    CREATE TABLE helper AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, SUM(p."0-4_people" + p."5-9_people" + p."10-14_people" + p."15-19_people") AS under_19
+    FROM SA2 s, POPULATION p
+    WHERE s.SA2_CODE21 = p.sa2_code
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, sql)
+    print(pd.read_sql_query("SELECT * from helper;", conn))
+    
+    
+    sql ="""
+    DROP TABLE IF EXISTS school_table;
+    CREATE TABLE school_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, CAST(COUNT(*) AS FLOAT) *1000/h.under_19 AS avg
+    FROM SA2 s
+    JOIN School sc ON ST_INTERSECTS(sc."Geometry", s.geom)
+    JOIN helper h ON (h.SA2_CODE21 = s.SA2_CODE21)
+    WHERE h.under_19 > 0
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21, under_19
+    
+    """
+    
+    query(conn, sql)
+    print(pd.read_sql_query("SELECT * from school_table;", conn))
+    
+    
+    sql ="""
+    ALTER TABLE school_table ADD IF NOT EXISTS zschool FLOAT;
+    UPDATE school_table SET zschool = (avg - (SELECT AVG(avg) FROM school_table)) / (SELECT STDDEV(avg) FROM school_table);
+    SELECT * FROM school_table order by zschool desc;
+    
+    """
+    
+    query(conn, sql)
+    print(pd.read_sql_query("SELECT * from school_table;", conn))
+    
+    
+    
+   
