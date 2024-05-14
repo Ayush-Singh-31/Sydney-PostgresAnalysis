@@ -91,13 +91,9 @@ def importCPrimary(currentDir, conn) -> None:
     CatchmentPrimary = gpd.read_file(CatchmentPrimaryPath)
     CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
-    CatchmentPrimary.drop_duplicates()
-
     CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
-
-    
+    CatchmentPrimary.drop_duplicates()
     print(CatchmentPrimary.head())
-    print(CatchmentPrimary[["PRIORITY"]])
     schema = """
     DROP TABLE IF EXISTS CatchmentPrimary;
     CREATE TABLE CatchmentPrimary (
@@ -140,9 +136,7 @@ def importCSecondary(currentDir, conn) -> None:
     CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
     CatchmentSecondary.drop_duplicates()
-    
     CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
-
     print(CatchmentSecondary.head())
     schema = """
     DROP TABLE IF EXISTS CatchmentSecondary;
