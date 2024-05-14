@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import seaborn as sns
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon
 from geoalchemy2 import Geometry, WKTElement
