@@ -392,5 +392,5 @@ if __name__ == "__main__":
     GROUP BY s.SA2_CODE21, s.SA2_NAME21;
     """
     # schema ="SELECT s.SA2_CODE21, s.SA2_NAME21 FROM SA2 s"
-    print(query(conn, schema))
+    query(conn, schema)
     print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn))
