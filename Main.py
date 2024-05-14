@@ -291,8 +291,8 @@ def importTrees(currentDir, conn) -> None:
     Trees['geom'] = gpd.points_from_xy(Trees.Longitude, Trees.Latitude) 
     Trees['Geometry'] = Trees['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
     Trees = Trees.drop(columns=['Latitude', 'Longitude','geom'])
-    Trees.drop_duplicates(inplace=True)
-    Trees.dropna(inplace=True)
+    # Trees.drop_duplicates(inplace=True)
+    # Trees.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS trees;
     CREATE TABLE trees (
@@ -385,7 +385,15 @@ if __name__ == "__main__":
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
     indexing(conn)
-    # print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
+    sql= """
+    DROP TABLE IF EXISTS stair_table;
+    CREATE TABLE stair_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st."OBJECTID") - AVG(COUNT(st."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(st."OBJECTID")) OVER () AS zstairs
+    FROM SA2 s JOIN stairs st ON ST_Contains(s.geom, st."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, sql)
+    print(pd.read_sql_query("SELECT * FROM stair_table;", conn))
     # print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn)) 
     schema = """
     DROP TABLE IF EXISTS poll_table;
