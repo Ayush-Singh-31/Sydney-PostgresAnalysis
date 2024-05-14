@@ -176,15 +176,17 @@ def importPolling(currentDir, conn) -> None:
     PollingPlacesPath = os.path.join(currentDir, "Data", "PollingPlaces2019.csv")
     PollingPlace = pd.read_csv(PollingPlacesPath)
     PollingPlace.drop_duplicates(inplace=True)
-    PollingPlace.drop(columns=['longitude','latitude','state','division_id','division_name','polling_place_id','polling_place_type_id','premises_address_1','premises_address_2','premises_address_3','premises_suburb','premises_state_abbreviation','premises_post_code'], inplace=True)
-    PollingPlace.dropna(inplace=True)
+    PollingPlace = PollingPlace.drop(columns=['FID','state','division_id','polling_place_id','polling_place_type_id','premises_name','premises_address_1','premises_address_2','premises_address_3','premises_suburb','premises_state_abbreviation','premises_post_code',"the_geom"])
+    PollingPlace.dropna(subset = ['longitude','latitude'],inplace=True)
+    PollingPlace['geometry'] = gpd.points_from_xy(PollingPlace.longitude, PollingPlace.latitude)
+    PollingPlace['geom'] = PollingPlace['geometry'].apply(lambda x: WKTElement(x.wkt, srid=4326))
+    PollingPlace.drop(columns=['longitude','latitude','geometry'], inplace=True)
     schema = """
     DROP TABLE IF EXISTS PollingPlace;
     CREATE TABLE PollingPlace (
-        "FID" VARCHAR(255),
+        "division_name" VARCHAR(255),
         "polling_place_name" VARCHAR(255),
-        "premises_name" VARCHAR(255),
-        "the_geom" GEOMETRY(POINT, 4326)
+        geom GEOMETRY(POINT, 4326)
     );
     """
     try:
@@ -192,7 +194,7 @@ def importPolling(currentDir, conn) -> None:
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
-        PollingPlace.to_sql("pollingplace", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+        PollingPlace.to_sql("pollingplace", conn, if_exists='append', index=False, dtype={'geom': Geometry('POINT', 4326)})
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from pollingplace"))
@@ -203,6 +205,10 @@ def importPopulation(currentDir, conn) -> None:
     Population.drop_duplicates(inplace=True)
     Population.dropna(inplace=True)
     Population = Population[Population['total_people'] != 0]
+    #
+    Population["check"] = Population["0-4_people"] + Population["5-9_people"] + Population["10-14_people"] + Population["15-19_people"]
+    Population = Population[Population["check"] != 0]
+    Population.drop(columns=['check'], inplace=True)
     schema = """
     DROP TABLE IF EXISTS Population;
     CREATE TABLE Population (
@@ -276,7 +282,7 @@ def indexing(conn) -> None:
     query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Income ON Income ("sa2_code21")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexSA2Population ON Population ("sa2_code")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexStops ON Stops USING GIST("geom")""")
-    query(conn,"""CREATE INDEX IF NOT EXISTS indexPolling ON PollingPlace USING GIST("the_geom")""")
+    query(conn,"""CREATE INDEX IF NOT EXISTS indexPolling ON PollingPlace USING GIST("geom")""")
 
 def importTrees(currentDir, conn) -> None:
     treesPath = os.path.join(currentDir, "Data", "trees.csv")
@@ -380,17 +386,5 @@ if __name__ == "__main__":
     importStairs(currentDir, conn)
     indexing(conn)
     # print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
-    schema = """
-    CREATE TABLE stops_table AS 
-    SELECT s.SA2_CODE21, s.SA2_NAME21, 
-        (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
-    FROM SA2 s 
-    JOIN (
-        SELECT stop_id, geom
-        FROM Stops
-    ) st ON ST_Contains(s.geom, st.geom)
-    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
-    """
-    # schema ="SELECT s.SA2_CODE21, s.SA2_NAME21 FROM SA2 s"
-    query(conn, schema)
-    print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn))
+    # print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn)) 
+    # print(pd.read_sql_query("SELECT * FROM poll_table order by zpoll desc;", conn))  

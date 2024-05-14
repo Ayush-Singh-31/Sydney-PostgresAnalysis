@@ -11,19 +11,25 @@ WHERE industry_name = 'Electricity, Gas, Water and Waste Services'
 
 schema = """
 CREATE TABLE stops_table AS 
-SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
-FROM Stops st JOIN SA2 s ON ST_Conatins(st.Geometry, s.geom)
-GROUP BY s.SA2_CODE21
+SELECT s.SA2_CODE21, s.SA2_NAME21, 
+    (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
+FROM SA2 s 
+JOIN (
+    SELECT stop_id, geom
+    FROM Stops
+) st ON ST_Contains(s.geom, st.geom)
+GROUP BY s.SA2_CODE21, s.SA2_NAME21;
 """
 
 -- Now creating zpoll
 
 schema = """
-CREATE TABLE poll_table AS
-SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.FID) - AVG(COUNT(p.FID)) OVER ()) / STDDEV_POP(COUNT(p.FID)) OVER () AS zpoll
-FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.the_geom)
-GROUP BY s.SA2_CODE21
-"""
+    DROP TABLE IF EXISTS buss_table;
+    CREATE TABLE poll_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.division_name) - AVG(COUNT(p.division_name)) OVER ()) / STDDEV_POP(COUNT(p.division_name)) OVER () AS zpoll
+    FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.geom)
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
 
 -- zschool
 schema = """
