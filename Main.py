@@ -227,7 +227,7 @@ def importCFuture(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from catchmentfuture"))
 
-def importBusiness(currentDir, Conn) -> None:
+def importBusiness(currentDir, conn) -> None:
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
     Business = pd.read_csv(BusinessPath)
     Business.drop_duplicates()
