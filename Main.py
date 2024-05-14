@@ -53,38 +53,24 @@ def importSA2(currentDir, conn) -> None:
     SA2DigitalBoundaries = SA2DigitalBoundaries[SA2DigitalBoundaries['GCC_NAME21'] == 'Greater Sydney'].copy()
     SA2DigitalBoundaries['geom'] = SA2DigitalBoundaries['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     SA2DigitalBoundaries = SA2DigitalBoundaries.drop(columns="geometry")
-    SA2DigitalBoundaries.drop(columns=['LOCI_URI21'], inplace=True)
-    SA2DigitalBoundaries.drop_duplicates()
+    SA2DigitalBoundaries.drop(columns=['LOCI_URI21','CHG_FLAG21','CHG_LBL21','SA3_CODE21','SA3_NAME21','SA4_CODE21','SA4_NAME21',"GCC_CODE21", "GCC_NAME21", "STE_CODE21" ,  "STE_NAME21" , "AUS_CODE21", "AUS_NAME21"], inplace=True)
+    SA2DigitalBoundaries.drop_duplicates(inplace=True)
+    SA2DigitalBoundaries.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS SA2;
     CREATE TABLE SA2 (
         "SA2_CODE21" INTEGER,
         "SA2_NAME21" VARCHAR(255),
-        "CHG_FLAG21" INTEGER,
-        "CHG_LBL21" VARCHAR(255),
-        "SA3_CODE21" INTEGER,
-        "SA3_NAME21" VARCHAR(255),
-        "SA4_CODE21" INTEGER,
-        "SA4_NAME21" VARCHAR(255),
-        "GCC_CODE21" VARCHAR(255),
-        "GCC_NAME21" VARCHAR(255),
-        "STE_CODE21" INTEGER,
-        "STE_NAME21" VARCHAR(255),
-        "AUS_CODE21" VARCHAR(255),
-        "AUS_NAME21" VARCHAR(255),
         "AREASQKM21" FLOAT,
         "geom" GEOMETRY(MULTIPOLYGON, 4326)
     );
     """
     try:
         conn.execute(text(schema))
-        print("Table SA2 created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
-    print(SA2DigitalBoundaries.head())
     try:
         SA2DigitalBoundaries.to_sql("sa2", conn, if_exists='append', index=False, dtype={'geom': Geometry('MULTIPOLYGON', 4326)})
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from SA2"))
@@ -94,69 +80,30 @@ def importSchool(currentDir, conn) -> None:
     CatchmentPrimary = gpd.read_file(CatchmentPrimaryPath)
     CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
-    # CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
-
     CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
     CatchmentSecondary = gpd.read_file(CatchmentSecondaryPath)
     CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
-    # CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
 
-    CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
-    CatchmentFuture = gpd.read_file(CatchmentFuturePath)
-    CatchmentFuture['Geometry'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
-    CatchmentFuture = CatchmentFuture.drop(columns="geometry")
-    CatchmentFuture['KINDERGART'] = CatchmentFuture['KINDERGART'].astype(bool)
-    CatchmentFuture['YEAR1'] = CatchmentFuture['YEAR1'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR2'] = CatchmentFuture['YEAR2'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR3'] = CatchmentFuture['YEAR3'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR4'] = CatchmentFuture['YEAR4'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR5'] = CatchmentFuture['YEAR5'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR6'] = CatchmentFuture['YEAR6'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR7'] = CatchmentFuture['YEAR7'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR8'] = CatchmentFuture['YEAR8'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR9'] = CatchmentFuture['YEAR9'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR10'] = CatchmentFuture['YEAR10'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR11'] = CatchmentFuture['YEAR11'].astype(bool).map({True: 'Y', False: 'N'})
-    CatchmentFuture['YEAR12'] = CatchmentFuture['YEAR12'].astype(bool).map({True: 'Y', False: 'N'})
-
-    school = pd.concat([CatchmentPrimary, CatchmentSecondary, CatchmentFuture])
+    school = pd.concat([CatchmentPrimary, CatchmentSecondary])
     school.drop_duplicates(inplace=True)
-    school.drop(columns=['PRIORITY'], inplace=True)
-    school = school[school['ADD_DATE'].notna()]
-
+    school.drop(columns=[ 'ADD_DATE', 'KINDERGART', 'YEAR1','YEAR2', 'YEAR3', 'YEAR4', 'YEAR5', 'YEAR6', 'YEAR7', 'YEAR8', 'YEAR9','YEAR10', 'YEAR11', 'YEAR12', 'PRIORITY'], inplace=True)
+    school.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS School;
     CREATE TABLE CatchmentCombined (
         "USE_ID" INTEGER,
         "CATCH_TYPE" VARCHAR(255),
         "USE_DESC" VARCHAR(255),
-        "ADD_DATE" DATE,
-        "KINDERGART" BOOLEAN,
-        "YEAR1" BOOLEAN,
-        "YEAR2" BOOLEAN,
-        "YEAR3" BOOLEAN,
-        "YEAR4" BOOLEAN,
-        "YEAR5" BOOLEAN,
-        "YEAR6" BOOLEAN,
-        "YEAR7" BOOLEAN,
-        "YEAR8" BOOLEAN,
-        "YEAR9" BOOLEAN,
-        "YEAR10" BOOLEAN,
-        "YEAR11" BOOLEAN,
-        "YEAR12" BOOLEAN,
-        "Geometry" GEOMETRY(MULTIPOLYGON, 4326),
-        PRIMARY KEY ("USE_ID","CATCH_TYPE")
+        "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
     );
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         school.to_sql("school", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from school"))
@@ -164,12 +111,12 @@ def importSchool(currentDir, conn) -> None:
 def importBusiness(currentDir, conn) -> None:
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
     Business = pd.read_csv(BusinessPath)
-    Business.drop_duplicates()
-    print(Business.head())
+    Business.drop(columns=['industry_code',], inplace=True)
+    Business.drop_duplicates(inplace=True)
+    Business.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS Business;
     CREATE TABLE Business (
-        "industry_code" VARCHAR,
         "industry_name" VARCHAR(255),
         "sa2_code" INTEGER,
         "sa2_name" VARCHAR(255),
@@ -184,12 +131,10 @@ def importBusiness(currentDir, conn) -> None:
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         Business.to_sql("business", conn, if_exists='append', index=False)
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from business"))
@@ -197,15 +142,13 @@ def importBusiness(currentDir, conn) -> None:
 def importIncome(currentDir, conn) -> None:
     IncomePath = os.path.join(currentDir, "Data", "Income.csv")
     Income = pd.read_csv(IncomePath)
-    Income.drop_duplicates()
-
+    Income.drop_duplicates(inplace=True)
+    Income.dropna(inplace=True)
     Income.replace('np', 0, inplace=True)
     Income['earners'] = Income['earners'].astype(int)
     Income['median_age'] = Income['median_age'].astype(int)
     Income['median_income'] = Income['median_income'].astype(int)
     Income['mean_income'] = Income['mean_income'].astype(int)
-
-    print(Income.info())
     schema = """
     DROP TABLE IF EXISTS Income;
     CREATE TABLE Income (
@@ -219,12 +162,10 @@ def importIncome(currentDir, conn) -> None:
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         Income.to_sql("income", conn, if_exists='append', index=False)
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from income"))
@@ -232,39 +173,24 @@ def importIncome(currentDir, conn) -> None:
 def importPolling(currentDir, conn) -> None:
     PollingPlacesPath = os.path.join(currentDir, "Data", "PollingPlaces2019.csv")
     PollingPlace = pd.read_csv(PollingPlacesPath)
-    PollingPlace['premises_post_code'] = pd.to_numeric(PollingPlace['premises_post_code'], errors='coerce').fillna(0).astype(int)
-    PollingPlace.drop_duplicates()
-    PollingPlace.drop(columns=['longitude','latitude'], inplace=True)
-    PollingPlace['the_geom'] = PollingPlace['the_geom'].fillna('POINT (0 0)')
-    print(PollingPlace.head())
+    PollingPlace.drop_duplicates(inplace=True)
+    PollingPlace.drop(columns=['longitude','latitude','state','division_id','division_name','polling_place_id','polling_place_type_id','premises_address_1','premises_address_2','premises_address_3','premises_suburb','premises_state_abbreviation','premises_post_code'], inplace=True)
+    PollingPlace.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS PollingPlace;
     CREATE TABLE PollingPlace (
         "FID" VARCHAR(255),
-        "state" VARCHAR(255),
-        "division_id" INTEGER,
-        "division_name" VARCHAR(255),
-        "polling_place_id" INTEGER,
-        "polling_place_type_id" FLOAT,
         "polling_place_name" VARCHAR(255),
         "premises_name" VARCHAR(255),
-        "premises_address_1" VARCHAR(255),
-        "premises_address_2" VARCHAR(255),
-        "premises_address_3" VARCHAR(255),
-        "premises_suburb" VARCHAR(255),
-        "premises_state_abbreviation" VARCHAR(255),
-        "premises_post_code" INTEGER,
         "the_geom" GEOMETRY(POINT, 4326)
     );
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         PollingPlace.to_sql("pollingplace", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from pollingplace"))
@@ -272,8 +198,8 @@ def importPolling(currentDir, conn) -> None:
 def importPolpulation(currentDir, conn) -> None:
     PopulationPath = os.path.join(currentDir, "Data", "Population.csv")
     Population = pd.read_csv(PopulationPath)
-    Population.drop_duplicates()
-    print(Population.head())
+    Population.drop_duplicates(inplace=True)
+    Population.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS Population;
     CREATE TABLE Population (
@@ -302,12 +228,10 @@ def importPolpulation(currentDir, conn) -> None:
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         Population.to_sql("population", conn, if_exists='append', index=False)
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from population"))
@@ -315,36 +239,30 @@ def importPolpulation(currentDir, conn) -> None:
 def importStops(currentDir, conn) -> None:
     stopsPath = os.path.join(currentDir, "Data", "Stops.txt")
     Stops = pd.read_csv(stopsPath)
-    Stops.drop_duplicates()
     Stops['platform_code'] = pd.to_numeric(Stops['platform_code'], errors='coerce').fillna(0).astype(int)
     Stops['parent_station'] = pd.to_numeric(Stops['parent_station'], errors='coerce').fillna(0).astype(int)
     Stops['location_type'] = pd.to_numeric(Stops['location_type'], errors='coerce').fillna(0).astype(int)
     Stops['stop_code'] = pd.to_numeric(Stops['stop_code'], errors='coerce').fillna(0).astype(int)
     Stops['geom'] = gpd.points_from_xy(Stops.stop_lon, Stops.stop_lat) 
     Stops['Geometry'] = Stops['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
-    Stops = Stops.drop(columns=['stop_lat', 'stop_lon','geom'])
-    print(Stops.head())
+    Stops = Stops.drop(columns=['stop_lat', 'stop_lon','geom','location_type','parent_station','wheelchair_boarding','platform_code'])
+    Stops.drop_duplicates(inplace=True)
+    Stops.dropna(inplace=True)
     schema = """
     DROP TABLE IF EXISTS Stops;
     CREATE TABLE Stops (
         "stop_id" VARCHAR(255),
         "stop_code" INTEGER,
         "stop_name" VARCHAR(255),
-        "location_type" INTEGER,
-        "parent_station" INTEGER,
-        "wheelchair_boarding" INTEGER,
-        "platform_code" INTEGER,
         "Geometry" GEOMETRY(POINT, 4326)
     );
     """
     try:
         conn.execute(text(schema))
-        print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
     try:
         Stops.to_sql("stops", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
-        print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
     print(query(conn, "select * from stops"))
