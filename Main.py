@@ -276,6 +276,91 @@ def indexing(conn) -> None:
     query(conn,"""CREATE INDEX IF NOT EXISTS indexStops ON Stops USING GIST("Geometry")""")
     query(conn,"""CREATE INDEX IF NOT EXISTS indexPolling ON PollingPlace USING GIST("the_geom")""")
 
+def importTrees(currentDir, conn) -> None:
+    treesPath = os.path.join(currentDir, "Data", "trees.csv")
+    Trees = pd.read_csv(treesPath)
+    Trees.drop(columns=['OID_', 'asset_id', 'SpeciesName', 'CommonName', 'TreeHeight', 'TreeCanopyEW', 'TreeCanopyNS', 'Tree_Status', 'TreeType'], inplace=True)
+    Trees['geom'] = gpd.points_from_xy(Trees.Longitude, Trees.Latitude) 
+    Trees['Geometry'] = Trees['geom'].apply(lambda x: WKTElement(x.wkt, srid=4326))
+    Trees = Trees.drop(columns=['Latitude', 'Longitude','geom'])
+    Trees.drop_duplicates(inplace=True)
+    Trees.dropna(inplace=True)
+    schema = """
+    DROP TABLE IF EXISTS trees;
+    CREATE TABLE trees (
+        "ObjectId" INTEGER,
+        "Geometry" GEOMETRY(POINT, 4326)
+    );
+    """
+    try:
+        conn.execute(text(schema))
+        print("Table created successfully.")
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        Trees.to_sql("trees", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from trees"))
+
+def importParking(currentDir, conn) -> None:
+    parkingPath = os.path.join(currentDir, "Data", "Mobility_parking.geojson")
+    Parking = gpd.read_file(parkingPath)
+    Parking['Geometry'] = Parking['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
+    Parking.drop(columns=['geometry'], inplace=True)
+    Parking.drop(['Address','Street','Location','SideOfStreet','ParkingSpaceWidth','ParkingSpaceLength','ParkingSpaceAngle','SignText','URL','AuditDate'], axis=1, inplace=True)
+    Parking.drop_duplicates(inplace=True)
+    Parking.dropna(inplace=True)
+    schema = """
+    DROP TABLE IF EXISTS parking;
+    CREATE TABLE Parking (
+        "OBJECTID" INTEGER,
+        "SiteID" INTEGER,
+        "Suburb" VARCHAR(32),
+        "NumberParkingSpaces" INTEGER,
+        "Geometry" GEOMETRY(POINT, 4326)
+    );
+    """
+    try:
+        conn.execute(text(schema))
+    except Exception as e:
+        print("Error executing SQL statement:", e)
+    try:
+        Parking.to_sql("parking", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from parking"))
+
+def importStairs(currentDir, conn) -> None:
+    stairsPath = os.path.join(currentDir, "Data", "stairs.geojson")
+    Stairs = gpd.read_file(stairsPath)
+    Stairs = Stairs.drop(columns=['ID', 'No_Steps', 'TGSI', 'StairNosingConstrastStrip','ClosestAlternateRoutes', 'Photo'])
+    Stairs['Geometry'] = Stairs['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
+    Stairs.drop(columns=['geometry'], inplace=True)
+    Stairs.drop_duplicates(inplace=True)
+    Stairs.dropna(inplace=True)
+    schema = """
+    DROP TABLE IF EXISTS stairs;
+    CREATE TABLE stairs (
+        "OBJECTID" INTEGER,
+        "Name" VARCHAR(255),
+        "Address" VARCHAR(128),
+        "Suburb" VARCHAR(64),
+        "HandRails" VARCHAR(32),
+        "Geometry" GEOMETRY(POINT, 4326)
+    );
+    """
+    try:
+        conn.execute(text(schema))
+    except Exception as e:
+        print("Error executing SQL Statement:", e)
+    try:
+        Stairs.to_sql("stairs", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('POINT', 4326)})
+    except Exception as e:
+        print("Error inserting data:", e)
+    print(query(conn, "select * from stairs"))
+
 if __name__ == "__main__":
     credentials = "Credentials.json"
     currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -288,4 +373,8 @@ if __name__ == "__main__":
     importPolling(currentDir, conn)
     importPolpulation(currentDir, conn)
     importStops(currentDir, conn)
+    importTrees(currentDir, conn)
+    importParking(currentDir, conn)
+    importStairs(currentDir, conn)
+    
     indexing(conn)
