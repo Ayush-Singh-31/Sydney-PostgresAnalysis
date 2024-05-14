@@ -201,6 +201,7 @@ def importPolpulation(currentDir, conn) -> None:
     Population = pd.read_csv(PopulationPath)
     Population.drop_duplicates(inplace=True)
     Population.dropna(inplace=True)
+    Population = Population[Population['total_people'] != 0]
     schema = """
     DROP TABLE IF EXISTS Population;
     CREATE TABLE Population (
@@ -376,5 +377,12 @@ if __name__ == "__main__":
     importTrees(currentDir, conn)
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
-
     indexing(conn)
+    schema = """
+    CREATE TABLE buss_table AS
+    SELECT p.sa2_code, p.sa2_name,  (CAST(b.total_businesses AS FLOAT) / p.total_people * 1000 - AVG(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER ()) / STDDEV_POP(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER () AS zbusiness
+    FROM Business b JOIN Population p 
+    ON p.sa2_code = b.sa2_code 
+    WHERE industry_name = 'Electricity, Gas, Water and Waste Services'
+    """
+    print(query(conn, schema))

@@ -4,7 +4,7 @@ CREATE TABLE buss_table AS
 SELECT p.sa2_code, p.sa2_name,  (CAST(b.total_businesses AS FLOAT) / p.total_people * 1000 - AVG(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER ()) / STDDEV_POP(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER () AS zbusiness
 FROM Business b JOIN Population p 
 ON p.sa2_code = b.sa2_code 
-WHERE IndustryName = 'Electricity, Gas, Water and Waste Services'
+WHERE industry_name = 'Electricity, Gas, Water and Waste Services'
 """
 
 -- Now creating zstops
