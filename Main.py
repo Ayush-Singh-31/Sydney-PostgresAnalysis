@@ -48,6 +48,7 @@ def importSA2(currentDir, conn) -> None:
     SA2DigitalBoundariesPath = os.path.join(currentDir, "Data", "SA2 Digital Boundaries","SA2_2021_AUST_GDA2020.shp")
     SA2DigitalBoundaries = gpd.read_file(SA2DigitalBoundariesPath)
     SA2DigitalBoundaries.dropna(subset=['geometry'], inplace=True)
+    SA2DigitalBoundaries = SA2DigitalBoundaries[SA2DigitalBoundaries['GCC_NAME21'] == 'Greater Sydney'].copy()
     SA2DigitalBoundaries['geom'] = SA2DigitalBoundaries['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     SA2DigitalBoundaries = SA2DigitalBoundaries.drop(columns="geometry")
     SA2DigitalBoundaries.drop(columns=['LOCI_URI21'], inplace=True)
@@ -86,165 +87,19 @@ def importSA2(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from SA2"))
 
-def importCPrimary(currentDir, conn) -> None:
-    CatchmentPrimaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_primary.shp")
-    CatchmentPrimary = gpd.read_file(CatchmentPrimaryPath)
-    CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
-    CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
-    CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
-    CatchmentPrimary.drop_duplicates()
-    print(CatchmentPrimary.head())
-    schema = """
-    DROP TABLE IF EXISTS CatchmentPrimary;
-    CREATE TABLE CatchmentPrimary (
-        "USE_ID" INTEGER PRIMARY KEY,
-        "CATCH_TYPE" VARCHAR(255),
-        "USE_DESC" VARCHAR(255),
-        "ADD_DATE" DATE,
-        "KINDERGART" BOOLEAN,
-        "YEAR1" BOOLEAN,
-        "YEAR2" BOOLEAN,
-        "YEAR3" BOOLEAN,
-        "YEAR4" BOOLEAN,
-        "YEAR5" BOOLEAN,
-        "YEAR6" BOOLEAN,
-        "YEAR7" BOOLEAN,
-        "YEAR8" BOOLEAN,
-        "YEAR9" BOOLEAN,
-        "YEAR10" BOOLEAN,
-        "YEAR11" BOOLEAN,
-        "YEAR12" BOOLEAN,
-        "PRIORITY" INTEGER,
-        "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
-    );
-    """
-    try:
-        conn.execute(text(schema))
-        print("Table created successfully.")
-    except Exception as e:
-        print("Error executing SQL statement:", e)
-    try:
-        CatchmentPrimary.to_sql("catchmentprimary", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
-        print("Data inserted successfully.")
-    except Exception as e:
-        print("Error inserting data:", e)
-    print(query(conn, "select * from catchmentprimary"))
-
-def importCSecondary(currentDir, conn) -> None:
-    CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
-    CatchmentSecondary = gpd.read_file(CatchmentSecondaryPath)
-    CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
-    CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
-    CatchmentSecondary.drop_duplicates()
-    CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
-    print(CatchmentSecondary.head())
-    schema = """
-    DROP TABLE IF EXISTS CatchmentSecondary;
-    CREATE TABLE CatchmentSecondary (
-        "USE_ID" INTEGER PRIMARY KEY,
-        "CATCH_TYPE" VARCHAR(255),
-        "USE_DESC" VARCHAR(255),
-        "ADD_DATE" DATE,
-        "KINDERGART" BOOLEAN,
-        "YEAR1" BOOLEAN,
-        "YEAR2" BOOLEAN,
-        "YEAR3" BOOLEAN,
-        "YEAR4" BOOLEAN,
-        "YEAR5" BOOLEAN,
-        "YEAR6" BOOLEAN,
-        "YEAR7" BOOLEAN,
-        "YEAR8" BOOLEAN,
-        "YEAR9" BOOLEAN,
-        "YEAR10" BOOLEAN,
-        "YEAR11" BOOLEAN,
-        "YEAR12" BOOLEAN,
-        "PRIORITY" INTEGER,
-        "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
-    );
-    """
-    try:
-        conn.execute(text(schema))
-        print("Table created successfully.")
-    except Exception as e:
-        print("Error executing SQL statement:", e)
-    try:
-        CatchmentSecondary.to_sql("catchmentsecondary", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
-        print("Data inserted successfully.")
-    except Exception as e:
-        print("Error inserting data:", e)
-    print(query(conn, "select * from catchmentsecondary"))
-
-def importCFuture(currentDir, conn) -> None:
-    CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
-    CatchmentFuture = gpd.read_file(CatchmentFuturePath)
-    CatchmentFuture['Geometry'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
-    CatchmentFuture = CatchmentFuture.drop(columns="geometry")
-    CatchmentFuture.drop_duplicates()
-    CatchmentFuture['KINDERGART'] = CatchmentFuture['KINDERGART'].astype(bool)
-    CatchmentFuture['YEAR1'] = CatchmentFuture['YEAR1'].astype(bool)
-    CatchmentFuture['YEAR2'] = CatchmentFuture['YEAR2'].astype(bool)
-    CatchmentFuture['YEAR3'] = CatchmentFuture['YEAR3'].astype(bool)
-    CatchmentFuture['YEAR4'] = CatchmentFuture['YEAR4'].astype(bool)
-    CatchmentFuture['YEAR5'] = CatchmentFuture['YEAR5'].astype(bool)
-    CatchmentFuture['YEAR6'] = CatchmentFuture['YEAR6'].astype(bool)
-    CatchmentFuture['YEAR7'] = CatchmentFuture['YEAR7'].astype(bool)
-    CatchmentFuture['YEAR8'] = CatchmentFuture['YEAR8'].astype(bool)
-    CatchmentFuture['YEAR9'] = CatchmentFuture['YEAR9'].astype(bool)
-    CatchmentFuture['YEAR10'] = CatchmentFuture['YEAR10'].astype(bool)
-    CatchmentFuture['YEAR11'] = CatchmentFuture['YEAR11'].astype(bool)
-    CatchmentFuture['YEAR12'] = CatchmentFuture['YEAR12'].astype(bool)
-    print(CatchmentFuture.head())
-    schema = """
-    DROP TABLE IF EXISTS CatchmentFuture;
-    CREATE TABLE CatchmentFuture (
-        "USE_ID" INTEGER PRIMARY KEY,
-        "CATCH_TYPE" VARCHAR(255),
-        "USE_DESC" VARCHAR(255),
-        "ADD_DATE" DATE,
-        "KINDERGART" BOOLEAN,
-        "YEAR1" BOOLEAN,
-        "YEAR2" BOOLEAN,
-        "YEAR3" BOOLEAN,
-        "YEAR4" BOOLEAN,
-        "YEAR5" BOOLEAN,
-        "YEAR6" BOOLEAN,
-        "YEAR7" BOOLEAN,
-        "YEAR8" BOOLEAN,
-        "YEAR9" BOOLEAN,
-        "YEAR10" BOOLEAN,
-        "YEAR11" BOOLEAN,
-        "YEAR12" BOOLEAN,
-        "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
-    );
-    """
-    try:
-        conn.execute(text(schema))
-        print("Table created successfully.")
-    except Exception as e:
-        print("Error executing SQL statement:", e)
-    try:
-        CatchmentFuture.to_sql("catchmentfuture", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
-        print("Data inserted successfully.")
-    except Exception as e:
-        print("Error inserting data:", e)
-    print(query(conn, "select * from catchmentfuture"))
-
 def importSchool(currentDir, conn) -> None:
-    # Import CatchmentPrimary
     CatchmentPrimaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_primary.shp")
     CatchmentPrimary = gpd.read_file(CatchmentPrimaryPath)
     CatchmentPrimary['Geometry'] = CatchmentPrimary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentPrimary = CatchmentPrimary.drop(columns="geometry")
     CatchmentPrimary['PRIORITY'] = pd.to_numeric(CatchmentPrimary['PRIORITY'], errors='coerce').fillna(0).astype(int)
 
-    # Import CatchmentSecondary
     CatchmentSecondaryPath = os.path.join(currentDir, "Data", "catchments", "catchments_secondary.shp")
     CatchmentSecondary = gpd.read_file(CatchmentSecondaryPath)
     CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
     CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
 
-    # Import CatchmentFuture
     CatchmentFuturePath = os.path.join(currentDir, "Data", "catchments", "catchments_future.shp")
     CatchmentFuture = gpd.read_file(CatchmentFuturePath)
     CatchmentFuture['Geometry'] = CatchmentFuture['geometry'].apply(lambda x: create_wkt_element(geom=x, srid=4326))
@@ -263,10 +118,8 @@ def importSchool(currentDir, conn) -> None:
     CatchmentFuture['YEAR11'] = CatchmentFuture['YEAR11'].astype(bool)
     CatchmentFuture['YEAR12'] = CatchmentFuture['YEAR12'].astype(bool)
 
-    # Merge Dataframes
-    combined_df = pd.concat([CatchmentPrimary, CatchmentSecondary, CatchmentFuture])
+    school = pd.concat([CatchmentPrimary, CatchmentSecondary, CatchmentFuture])
 
-    # Create Database Table
     schema = """
     DROP TABLE IF EXISTS CatchmentCombined;
     CREATE TABLE CatchmentCombined (
@@ -296,16 +149,12 @@ def importSchool(currentDir, conn) -> None:
         print("Table created successfully.")
     except Exception as e:
         print("Error executing SQL statement:", e)
-
-    # Insert Data into Database
     try:
-        combined_df.to_sql("catchmentcombined", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
+        school.to_sql("catchmentcombined", conn, if_exists='append', index=False, dtype={'Geometry': Geometry('MULTIPOLYGON', 4326)})
         print("Data inserted successfully.")
     except Exception as e:
         print("Error inserting data:", e)
-
     print(query(conn, "select * from catchmentcombined"))
-
 
 def importBusiness(currentDir, conn) -> None:
     BusinessPath = os.path.join(currentDir, "Data", "Businesses.csv")
@@ -500,11 +349,12 @@ if __name__ == "__main__":
     currentDir = os.path.dirname(os.path.abspath(__file__))
     db, conn = pgconnect(credentials)
 
-    # importSA2(currentDir, conn)
-    # importSchool(currentDir, conn)
-    # importBusiness(currentDir, conn)
-    # importIncome(currentDir, conn)
-    # importPolling(currentDir, conn)
-    # importPolpulation(currentDir, conn)
-    # importStops(currentDir, conn)
+    importSA2(currentDir, conn)
     importSchool(currentDir, conn)
+    importBusiness(currentDir, conn)
+    importIncome(currentDir, conn)
+    importPolling(currentDir, conn)
+    importPolpulation(currentDir, conn)
+    importStops(currentDir, conn)
+
+    
