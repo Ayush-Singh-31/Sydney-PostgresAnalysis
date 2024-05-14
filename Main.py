@@ -140,6 +140,9 @@ def importCSecondary(currentDir, conn) -> None:
     CatchmentSecondary['Geometry'] = CatchmentSecondary['geometry'].apply(lambda x: create_wkt_element(geom=x,srid=4326))
     CatchmentSecondary = CatchmentSecondary.drop(columns="geometry")
     CatchmentSecondary.drop_duplicates()
+    
+    CatchmentSecondary['PRIORITY'] = pd.to_numeric(CatchmentSecondary['PRIORITY'], errors='coerce').fillna(0).astype(int)
+
     print(CatchmentSecondary.head())
     schema = """
     DROP TABLE IF EXISTS CatchmentSecondary;
@@ -161,7 +164,7 @@ def importCSecondary(currentDir, conn) -> None:
         "YEAR10" BOOLEAN,
         "YEAR11" BOOLEAN,
         "YEAR12" BOOLEAN,
-        "PRIORITY" BOOLEAN,
+        "PRIORITY" INTEGER,
         "Geometry" GEOMETRY(MULTIPOLYGON, 4326)
     );
     """
