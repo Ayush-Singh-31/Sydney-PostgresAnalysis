@@ -267,6 +267,10 @@ def importStops(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from stops"))
 
+def indexing(conn) -> None:
+    print(query(conn,"CREATE INDEX indexSA2Bussiness ON BUSINESS (SA2_CODE)"))
+    print(query(conn,"select * from BUSINESS limit 5"))
+
 if __name__ == "__main__":
     credentials = "Credentials.json"
     currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -279,3 +283,4 @@ if __name__ == "__main__":
     importPolling(currentDir, conn)
     importPolpulation(currentDir, conn)
     importStops(currentDir, conn)
+    indexing(conn)
