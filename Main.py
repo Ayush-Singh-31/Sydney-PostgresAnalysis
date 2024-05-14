@@ -387,4 +387,13 @@ if __name__ == "__main__":
     indexing(conn)
     # print(pd.read_sql_query("SELECT * FROM buss_table order by zbusiness desc", conn))
     # print(pd.read_sql_query("SELECT * FROM stops_table order by zstops desc;", conn)) 
-    # print(pd.read_sql_query("SELECT * FROM poll_table order by zpoll desc;", conn))  
+    schema = """
+    DROP TABLE IF EXISTS poll_table;
+    CREATE TABLE poll_table AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.division_name) - AVG(COUNT(p.division_name)) OVER ()) / STDDEV_POP(COUNT(p.division_name)) OVER () AS zpoll
+    FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.geom)
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, schema)
+    print(pd.read_sql_query("SELECT * FROM poll_table order by zpoll desc;", conn))
+    
