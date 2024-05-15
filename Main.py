@@ -471,6 +471,22 @@ def sigmoid(conn) -> None:
     DROP TABLE IF EXISTS zscore;
     CREATE TABLE zscore AS
     SELECT s.SA2_CODE21, s.SA2_NAME21, 
+        (zb.zbusiness + zs.zstops + zp.zpoll + zsc.zschool) AS score
+    FROM SA2 s
+    JOIN bussTable zb ON s.SA2_CODE21 = zb.sa2_code
+    JOIN stopsTable zs ON s.SA2_CODE21 = zs.sa2_code21
+    JOIN pollTable zp ON s.SA2_CODE21 = zp.sa2_code21
+    JOIN schoolTable zsc ON s.SA2_CODE21 = zsc.sa2_code21;
+    """
+    query(conn, sigmodi)
+    df = pd.read_sql_query("SELECT * from zscore ORDER BY score DESC;", conn)
+    df['bustling_score'] = 1 / (1 + np.exp(-df['score']))
+    print(f"{df}\n")
+
+    sigmodi = """
+    DROP TABLE IF EXISTS zscore;
+    CREATE TABLE zscore AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, 
         (zb.zbusiness + zs.zstops + zp.zpoll + zt.ztrees + zpk.zpark + zst.zstairs + zsc.zschool) AS score
     FROM SA2 s
     JOIN bussTable zb ON s.SA2_CODE21 = zb.sa2_code
