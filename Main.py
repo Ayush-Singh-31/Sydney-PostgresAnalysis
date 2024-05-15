@@ -504,7 +504,29 @@ def sigmoid(conn) -> None:
     print(df)
 
 def plotData(conn) -> None:
-    pass
+    query(conn,"""
+    ALTER TABLE zscore ADD IF NOT EXISTS median_income FLOAT;
+    UPDATE zscore
+    SET median_income = Income.median_income
+    FROM Income
+    WHERE zscore.SA2_code21 = INCOME.SA2_code21;
+    """)
+    df = pd.read_sql_query(""" SELECT * from zscore;""",conn)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['score'], df['median_income'], alpha=0.5)
+    plt.title('Scatter Plot of  Score A vs Median Income')
+    plt.xlabel('Score')
+    plt.ylabel('Median Income')
+    plt.grid(True)
+    plt.show()
+    map_overlay = gpd.read_postgis("SELECT geom, score FROM SA2 s JOIN zscore r ON (s.sa2_code21 = r.sa2_code21)", conn, geom_col='geom')
+    plt.rcParams
+    map_overlay.plot(column='score', cmap='GnBu', legend=True)
+    plt.title('Resource Score Map Overlay')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    # plt.savefig('map.png')
+    plt.show()
 
 if __name__ == "__main__":
     credentials = "Credentials.json"
