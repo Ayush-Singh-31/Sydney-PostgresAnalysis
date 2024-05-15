@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import seaborn as sns
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon
@@ -502,6 +503,9 @@ def sigmoid(conn) -> None:
     df['bustling_score'] = 1 / (1 + np.exp(-df['score']))
     print(df)
 
+def plotData(conn) -> None:
+    pass
+
 if __name__ == "__main__":
     credentials = "Credentials.json"
     currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -519,3 +523,4 @@ if __name__ == "__main__":
     importStairs(currentDir, conn)
     zScore(conn)
     sigmoid(conn)
+    plotData(conn)
