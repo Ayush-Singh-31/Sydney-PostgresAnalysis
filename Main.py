@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, text
 import psycopg2
 import psycopg2.extras
 import json
+import cartopy.crs as ccrs 
 
 def pgconnect(credential_filepath, db_schema="public"):
     with open(credential_filepath) as f:
@@ -519,14 +520,48 @@ def plotData(conn) -> None:
     plt.ylabel('Median Income')
     plt.grid(True)
     plt.show()
+
     map_overlay = gpd.read_postgis("SELECT geom, score FROM SA2 s JOIN zscore r ON (s.sa2_code21 = r.sa2_code21)", conn, geom_col='geom')
     plt.rcParams
     map_overlay.plot(column='score', cmap='GnBu', legend=True)
     plt.title('Resource Score Map Overlay')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
-    # plt.savefig('map.png')
     plt.show()
+
+    trees_df = gpd.read_postgis("SELECT * FROM trees", conn, geom_col='Geometry')
+    fig, ax = plt.subplots(figsize=(12, 8))
+    trees_df.plot(ax=ax, markersize=10, color='green', marker='o', alpha=0.7, label='Trees')
+    plt.title('Distribution of Trees', fontsize=16)
+    plt.xlabel('Longitude', fontsize=14)
+    plt.ylabel('Latitude', fontsize=14)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    parking_df = gpd.read_postgis("SELECT * FROM parking", conn, geom_col='Geometry')
+    fig, ax = plt.subplots(figsize=(12, 8))
+    parking_df.plot(ax=ax, markersize=10, color='blue', marker='o', alpha=0.7, label='Parking')
+    plt.title('Parking Locations', fontsize=16)
+    plt.xlabel('Longitude', fontsize=14)
+    plt.ylabel('Latitude', fontsize=14)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    stairs_df = gpd.read_postgis("SELECT * FROM stairs", conn, geom_col='Geometry')
+    fig, ax = plt.subplots(figsize=(12, 8))
+    stairs_df.plot(ax=ax, markersize=10, color='red', marker='^', alpha=0.7, label='Stairs')
+    plt.title('Stairs Locations', fontsize=16)
+    plt.xlabel('Longitude', fontsize=14)
+    plt.ylabel('Latitude', fontsize=14)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def coorelation(conn) -> None:
+    pass
+    # Entirely in ipynb
 
 if __name__ == "__main__":
     credentials = "Credentials.json"
@@ -543,6 +578,9 @@ if __name__ == "__main__":
     importTrees(currentDir, conn)
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
+    indexing(conn)
     zScore(conn)
     sigmoid(conn)
     plotData(conn)
+    coorelation(conn)
+    conn.close()
