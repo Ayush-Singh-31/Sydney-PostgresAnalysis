@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 import psycopg2
 import psycopg2.extras
 import json
-import cartopy.crs as ccrs 
+
 
 def pgconnect(credential_filepath, db_schema="public"):
     with open(credential_filepath) as f:
