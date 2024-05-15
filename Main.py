@@ -1,6 +1,6 @@
 import os
+import numpy as np
 import pandas as pd
-import seaborn as sns
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPolygon
 from geoalchemy2 import Geometry, WKTElement
@@ -366,6 +366,126 @@ def importStairs(currentDir, conn) -> None:
         print("Error inserting data:", e)
     print(query(conn, "select * from stairs"))
 
+def zScore(conn):
+    zbussiness = """
+    DROP TABLE IF EXISTS bussTable;
+    CREATE TABLE bussTable AS
+    SELECT p.sa2_code, p.sa2_name,  
+    (CAST(b.total_businesses AS FLOAT) / p.total_people * 1000 - AVG(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER ()) / STDDEV_POP(CAST(b.total_businesses AS FLOAT) / p.total_people * 1000) OVER () AS zbusiness
+    FROM Business b JOIN Population p 
+    ON p.sa2_code = b.sa2_code 
+    WHERE industry_name = 'Electricity, Gas, Water and Waste Services'
+    """
+    query(conn, zbussiness)
+    print(pd.read_sql_query("SELECT * from bussTable ORDER BY zbusiness DESC;", conn))
+
+    zStops = """
+    DROP TABLE IF EXISTS stopsTable;
+    CREATE TABLE stopsTable AS 
+    SELECT s.SA2_CODE21, s.SA2_NAME21, 
+        (COUNT(st.stop_id) - AVG(COUNT(st.stop_id)) OVER ()) / STDDEV_POP(COUNT(st.stop_id)) OVER () AS zstops
+    FROM SA2 s 
+    JOIN (
+        SELECT stop_id, geom
+        FROM Stops
+    ) st ON ST_Contains(s.geom, st.geom)
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, zStops)
+    print(pd.read_sql_query("SELECT * from stopsTable ORDER BY zstops DESC;", conn))
+
+    zPoll = """
+    DROP TABLE IF EXISTS pollTable;
+    CREATE TABLE pollTable AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p.division_name) - AVG(COUNT(p.division_name)) OVER ()) / STDDEV_POP(COUNT(p.division_name)) OVER () AS zpoll
+    FROM SA2 s JOIN PollingPlace p ON ST_Contains(s.geom, p.geom)
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, zPoll)
+    print(pd.read_sql_query("SELECT * from pollTable ORDER BY zpoll DESC;", conn))
+
+    zSchool = """
+    DROP TABLE IF EXISTS helper;
+    CREATE TABLE helper AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, SUM(p."0-4_people" + p."5-9_people" + p."10-14_people" + p."15-19_people") AS under_19
+    FROM SA2 s
+    JOIN POPULATION p ON s.SA2_CODE21 = p.sa2_code
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+
+    DROP TABLE IF EXISTS schoolTable;
+    CREATE TABLE schoolTable AS
+    WITH schoolTable AS (
+        SELECT s.SA2_CODE21, s.SA2_NAME21, CAST(COUNT(*) AS FLOAT) * 1000 / h.under_19 AS avg
+        FROM SA2 s
+        JOIN School sc ON ST_INTERSECTS(sc."Geometry", s.geom)
+        JOIN helper h ON h.SA2_CODE21 = s.SA2_CODE21
+        WHERE h.under_19 > 0
+        GROUP BY s.SA2_CODE21, s.SA2_NAME21, h.under_19
+    ),
+    stats AS (
+        SELECT AVG(avg) AS mean_avg, STDDEV(avg) AS stddev_avg
+        FROM schoolTable
+    )
+    SELECT 
+        sd.SA2_CODE21, sd.SA2_NAME21, sd.avg, (sd.avg - st.mean_avg) / st.stddev_avg AS zschool
+    FROM schoolTable sd, stats st;
+    """
+    query(conn, zSchool)
+    print(pd.read_sql_query("SELECT * from schoolTable ORDER BY zschool DESC;", conn))
+
+    zTrees = """
+    DROP TABLE IF EXISTS treeTable;
+    CREATE TABLE treeTable AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(t."ObjectId") - AVG(COUNT(t."ObjectId")) OVER ()) / STDDEV_POP(COUNT(t."ObjectId")) OVER () AS ztrees
+    FROM SA2 s JOIN trees t ON ST_Contains(s.geom, t."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, zTrees)
+    print(pd.read_sql_query("SELECT * from treeTable ORDER BY ztrees DESC;", conn))
+    print()
+
+    zParking = """
+    DROP TABLE IF EXISTS parkTable;
+    CREATE TABLE parkTable AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(p."OBJECTID") - AVG(COUNT(p."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(p."OBJECTID")) OVER () AS zpark
+    FROM SA2 s JOIN parking p ON ST_Contains(s.geom, p."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, zParking)
+    print(pd.read_sql_query("SELECT * from parkTable ORDER BY zpark DESC;", conn))
+    print()
+
+    zStairs = """
+    DROP TABLE IF EXISTS stairsTable;
+    CREATE TABLE stairsTable AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, (COUNT(st."OBJECTID") - AVG(COUNT(st."OBJECTID")) OVER ()) / STDDEV_POP(COUNT(st."OBJECTID")) OVER () AS zstairs
+    FROM SA2 s JOIN stairs st ON ST_Contains(s.geom, st."Geometry")
+    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
+    """
+    query(conn, zStairs)
+    print(pd.read_sql_query("SELECT * from stairsTable ORDER BY zstairs DESC;", conn))
+    print()
+
+def sigmoid(conn) -> None:
+    sigmodi = """
+    DROP TABLE IF EXISTS zscore;
+    CREATE TABLE zscore AS
+    SELECT s.SA2_CODE21, s.SA2_NAME21, 
+        (zb.zbusiness + zs.zstops + zp.zpoll + zt.ztrees + zpk.zpark + zst.zstairs + zsc.zschool) AS score
+    FROM SA2 s
+    JOIN bussTable zb ON s.SA2_CODE21 = zb.sa2_code
+    JOIN stopsTable zs ON s.SA2_CODE21 = zs.sa2_code21
+    JOIN pollTable zp ON s.SA2_CODE21 = zp.sa2_code21
+    JOIN treeTable zt ON s.SA2_CODE21 = zt.sa2_code21
+    JOIN parkTable zpk ON s.SA2_CODE21 = zpk.sa2_code21
+    JOIN stairsTable zst ON s.SA2_CODE21 = zst.sa2_code21
+    JOIN schoolTable zsc ON s.SA2_CODE21 = zsc.sa2_code21;
+    """
+    query(conn, sigmodi)
+    df = pd.read_sql_query("SELECT * from zscore ORDER BY score DESC;", conn)
+    df['bustling_score'] = 1 / (1 + np.exp(-df['score']))
+    print(df)
+
 if __name__ == "__main__":
     credentials = "Credentials.json"
     currentDir = os.path.dirname(os.path.abspath(__file__))
@@ -381,45 +501,5 @@ if __name__ == "__main__":
     importTrees(currentDir, conn)
     importParking(currentDir, conn)
     importStairs(currentDir, conn)
-    
-    sql = """
-    DROP TABLE IF EXISTS helper;
-    CREATE TABLE helper AS
-    SELECT s.SA2_CODE21, s.SA2_NAME21, SUM(p."0-4_people" + p."5-9_people" + p."10-14_people" + p."15-19_people") AS under_19
-    FROM SA2 s, POPULATION p
-    WHERE s.SA2_CODE21 = p.sa2_code
-    GROUP BY s.SA2_CODE21, s.SA2_NAME21;
-    """
-    query(conn, sql)
-    print(pd.read_sql_query("SELECT * from helper;", conn))
-    
-    
-    sql ="""
-    DROP TABLE IF EXISTS school_table;
-    CREATE TABLE school_table AS
-    SELECT s.SA2_CODE21, s.SA2_NAME21, CAST(COUNT(*) AS FLOAT) *1000/h.under_19 AS avg
-    FROM SA2 s
-    JOIN School sc ON ST_INTERSECTS(sc."Geometry", s.geom)
-    JOIN helper h ON (h.SA2_CODE21 = s.SA2_CODE21)
-    WHERE h.under_19 > 0
-    GROUP BY s.SA2_CODE21, s.SA2_NAME21, under_19
-    
-    """
-    
-    query(conn, sql)
-    print(pd.read_sql_query("SELECT * from school_table;", conn))
-    
-    
-    sql ="""
-    ALTER TABLE school_table ADD IF NOT EXISTS zschool FLOAT;
-    UPDATE school_table SET zschool = (avg - (SELECT AVG(avg) FROM school_table)) / (SELECT STDDEV(avg) FROM school_table);
-    SELECT * FROM school_table order by zschool desc;
-    
-    """
-    
-    query(conn, sql)
-    print(pd.read_sql_query("SELECT * from school_table;", conn))
-    
-    
-    
-   
+    zScore(conn)
+    sigmoid(conn)
